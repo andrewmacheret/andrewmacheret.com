@@ -1,4 +1,4 @@
 # Resumes
 
-This is where I store my resumes. [Much excite](andrewmacheret.com/resume/resume.pdf).
+This is where I store my resumes. [Much excite](http://andrewmacheret.com/resume/resume.pdf).
 
