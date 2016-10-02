@@ -10,6 +10,6 @@ deploy:
   skip_cleanup: true
   acl: public_read
   region: us-east-1
-  local_dir: www
   default_text_charset: utf-8
   detect_encoding: true
+  local_dir: www
