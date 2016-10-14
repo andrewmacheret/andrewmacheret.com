@@ -20,13 +20,10 @@ $(function() {
     });
 
 
-  $.get('/projects/pun/').success(function(content) {
-    var html = $.parseHTML(content);
-    $.each(html, function(i, element) {
-      if (element.nodeName == 'H1') {
-        $('#hi').text(element.childNodes[0].textContent);
-      }
-    });
+  $.getJSON('https://pun.andrewmacheret.com').success(function(json) {
+    if (json.pun) {
+      $('#hi').text(json.pun);
+    }
   });
 
 
