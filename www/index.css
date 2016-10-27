@@ -40,11 +40,13 @@ body {
   display: inline-block;
   height: 100%;
 
+  /* this stuff is too intense for most browsers
   filter: blur(2px) sepia(80%);
   -webkit-filter: blur(2px) sepia(80%);
   -moz-filter: blur(2px) sepia(80%);
   -o-filter: blur(2px) sepia(80%);
   -ms-filter: blur(2px) sepia(80%);
+  */
 }
 
 #hi-wrapper {
