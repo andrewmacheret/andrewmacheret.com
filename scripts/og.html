@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!-- the link preview image (www/og.png). Rebuild it with scripts/og.sh -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=block">
+<style>
+html, body {
+  margin: 0;
+  width: 1200px;
+  height: 630px;
+  overflow: hidden;
+  background: #0b0d0c;
+  font-family: "JetBrains Mono", monospace;
+  -webkit-font-smoothing: antialiased;
+}
+/* same look as .scene, .sun and .crt in www/index.css */
+.scene {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 85%, rgb(255 41 117 / 0.16), transparent 55%);
+}
+.sun {
+  position: absolute;
+  left: 50%;
+  bottom: calc(18% - 150px);
+  width: 390px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  translate: -50% 0;
+  opacity: 0.55;
+  background: linear-gradient(#ffd319, #ff901f 35%, #ff2975 70%, #8c1eff);
+  mask-image: linear-gradient(#000 38%, transparent 38% 40%, #000 40% 47%, transparent 47% 50%,
+    #000 50% 56%, transparent 56% 60%, #000 60% 65%, transparent 65% 70%, #000 70%);
+}
+canvas {
+  position: absolute;
+  inset: 0;
+}
+.crt {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.6)),
+    repeating-linear-gradient(rgb(0 0 0 / 0.25) 0 1px, transparent 1px 3px);
+}
+header {
+  position: absolute;
+  top: 72px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+h1 {
+  margin: 0 0 20px;
+  font-size: 92px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  /* the green block shadow and red/blue split from the site's 3d mode */
+  text-shadow:
+    3px 0 rgb(255 40 40 / 0.6),
+    -3px 0 rgb(0 220 255 / 0.6),
+    1px 2px #5fcf6a,
+    2px 4px #4ab556,
+    3px 6px #3a9a46,
+    4px 8px #2d7f38,
+    5px 10px #21652b,
+    6px 12px #174c1f,
+    8px 16px 14px rgb(0 0 0 / 0.7);
+}
+h1 .cursor {
+  color: #7ee787;
+}
+p {
+  margin: 0;
+  font-size: 30px;
+  color: #a3ada6;
+  text-shadow:
+    1.5px 0 rgb(255 40 40 / 0.35),
+    -1.5px 0 rgb(0 220 255 / 0.35);
+}
+</style>
+</head>
+<body>
+<div class="scene"><div class="sun"></div><canvas width="1200" height="630"></canvas></div>
+<header>
+  <h1>andrew macheret<span class="cursor">_</span></h1>
+  <p>software engineer. i build things, mostly for fun.</p>
+</header>
+<div class="crt"></div>
+<script>
+// the grid floor, same as drawFloor() in www/index.html
+const canvas = document.querySelector('canvas');
+const w = canvas.width;
+const h = canvas.height;
+const ctx = canvas.getContext('2d');
+const horizon = h * 0.82;
+const near = h - horizon;
+const step = 0.25;
+ctx.fillStyle = '#0b0d0c';
+ctx.fillRect(0, horizon, w, near);
+const fade = ctx.createLinearGradient(0, horizon, 0, h);
+fade.addColorStop(0, 'rgb(126 231 135 / 0)');
+fade.addColorStop(0.3, 'rgb(126 231 135 / 0.08)');
+fade.addColorStop(1, 'rgb(126 231 135 / 0.6)');
+ctx.fillStyle = fade;
+ctx.strokeStyle = fade;
+for (let z = step; near / z > 1; z += step) {
+  if (near / z < near + 1) ctx.fillRect(0, horizon + near / z - 0.5, w, 1);
+}
+const gap = step * near;
+const count = Math.ceil((1.5 * w) / gap);
+ctx.beginPath();
+for (let i = -count; i <= count; i++) {
+  ctx.moveTo(w / 2, horizon);
+  ctx.lineTo(w / 2 + i * gap, h);
+}
+ctx.stroke();
+</script>
+</body>
+</html>
