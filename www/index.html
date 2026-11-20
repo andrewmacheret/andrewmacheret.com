@@ -68,6 +68,9 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
     <option value="-cool">-cool</option>
     <option value="date">date</option>
     <option value="-date">-date</option>
+    <option value="name">name</option>
+    <option value="-name">-name</option>
+    <option value="/dev/random">/dev/random</option>
   </select></p>
 
   <ol class="projects">
@@ -247,16 +250,22 @@ projects.forEach((li, i) => {
   li.style.counterSet = `project ${i + 1}`;
 });
 
-// "cool" and "date" put the coolest / newest first. A leading "-" flips it.
+// "cool" puts the coolest first, "date" the oldest and "name" A to Z.
+// A leading "-" flips it. "/dev/random" shuffles every time you pick it.
 function sortProjects(by) {
   const flip = by.startsWith('-') ? -1 : 1;
   const key = by.replace('-', '');
-  const sorted = [...projects].sort((a, b) => {
-    const diff = key === 'date'
-      ? b.dataset.date.localeCompare(a.dataset.date)
-      : a.dataset.cool - b.dataset.cool;
-    return flip * (diff || a.dataset.cool - b.dataset.cool);
-  });
+  const shuffle = new Map(projects.map((li) => [li, Math.random()]));
+  const title = (li) => li.querySelector('h2').textContent;
+  const compare = {
+    cool: (a, b) => a.dataset.cool - b.dataset.cool,
+    date: (a, b) => a.dataset.date.localeCompare(b.dataset.date),
+    name: (a, b) => title(a).localeCompare(title(b)),
+    '/dev/random': (a, b) => shuffle.get(a) - shuffle.get(b),
+  }[key];
+  const sorted = [...projects].sort((a, b) => (
+    flip * (compare(a, b) || a.dataset.cool - b.dataset.cool)
+  ));
   list.append(...sorted);
 }
 
