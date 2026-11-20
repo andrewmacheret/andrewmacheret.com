@@ -36,12 +36,7 @@
 </header>
 
 <section>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ ls projects/ | sort --by=<select id="sort" aria-label="sort projects by">
-    <option value="cool">cool</option>
-    <option value="-cool">-cool</option>
-    <option value="date">date</option>
-    <option value="-date">-date</option>
-  </select></p>
+  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ ls projects/ | sort --by=<button type="button" id="sort" aria-label="sort by cool, click to change">cool</button> <span class="comment"># click to re-sort</span></p>
 
   <ol class="projects">
     <li data-date="2026-11-19">
@@ -230,19 +225,25 @@ function sortProjects(by) {
   list.append(...sorted);
 }
 
-const select = document.getElementById('sort');
-const params = new URLSearchParams(location.search);
-if ([...select.options].some((o) => o.value === params.get('sort'))) {
-  select.value = params.get('sort');
-  sortProjects(select.value);
-}
-select.addEventListener('change', () => {
-  sortProjects(select.value);
+const KEYS = ['cool', '-cool', 'date', '-date'];
+const button = document.getElementById('sort');
+
+function setSort(key) {
+  button.textContent = key;
+  button.setAttribute('aria-label', `sort by ${key}, click to change`);
+  sortProjects(key);
   const url = new URL(location);
-  if (select.value === 'cool') url.searchParams.delete('sort');
-  else url.searchParams.set('sort', select.value);
+  if (key === 'cool') url.searchParams.delete('sort');
+  else url.searchParams.set('sort', key);
   history.replaceState(null, '', url);
+}
+
+button.addEventListener('click', () => {
+  setSort(KEYS[(KEYS.indexOf(button.textContent) + 1) % KEYS.length]);
 });
+
+const fromUrl = new URLSearchParams(location.search).get('sort');
+if (KEYS.includes(fromUrl)) setSort(fromUrl);
 
 fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })
   .then((res) => (res.ok ? res.text() : Promise.reject()))
