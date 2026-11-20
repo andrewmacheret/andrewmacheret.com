@@ -39,7 +39,12 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
 </header>
 
 <section>
-  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">ls projects/ | sort --by=<button type="button" id="sort" aria-label="sort by cool, click to change">cool</button></span> <span class="comment"># click to re-sort</span></p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">ls projects/ | sort --by=</span><select id="sort" aria-label="sort projects by">
+    <option value="cool">cool</option>
+    <option value="-cool">-cool</option>
+    <option value="date">date</option>
+    <option value="-date">-date</option>
+  </select></p>
 
   <ol class="projects">
     <li data-date="2026-11-19">
@@ -227,27 +232,8 @@ function sortProjects(by) {
   list.append(...sorted);
 }
 
-const KEYS = ['cool', '-cool', 'date', '-date'];
-const button = document.getElementById('sort');
-let sortKey = 'cool';
-
-function setSort(key) {
-  sortKey = key;
-  button.textContent = key;
-  button.setAttribute('aria-label', `sort by ${key}, click to change`);
-  sortProjects(key);
-  const url = new URL(location);
-  if (key === 'cool') url.searchParams.delete('sort');
-  else url.searchParams.set('sort', key);
-  history.replaceState(null, '', url);
-}
-
-button.addEventListener('click', () => {
-  setSort(KEYS[(KEYS.indexOf(sortKey) + 1) % KEYS.length]);
-});
-
-const fromUrl = new URLSearchParams(location.search).get('sort');
-if (KEYS.includes(fromUrl)) setSort(fromUrl);
+const select = document.getElementById('sort');
+select.addEventListener('change', () => sortProjects(select.value));
 
 // type anywhere to rename the site, backspace to delete, escape to undo
 const ORIGINAL_NAME = 'andrew macheret';
@@ -264,8 +250,9 @@ function renderName() {
 
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
-  // let space and enter still press a focused button or link
-  if ((e.key === ' ' || e.key === 'Enter') && e.target.closest('button, a')) return;
+  // let the sort dropdown and links keep their own keys
+  if (e.target.closest('select')) return;
+  if ((e.key === ' ' || e.key === 'Enter') && e.target.closest('a')) return;
 
   if (e.key === 'Escape') {
     name = ORIGINAL_NAME;
@@ -331,9 +318,8 @@ async function boot() {
   show(...header.children);
   await wait(400);
 
-  const sortLine = button.closest('.prompt');
-  await typeLine(sortLine);
-  show(sortLine.querySelector('.comment'));
+  await typeLine(select.closest('.prompt'));
+  show(select);
   await wait(200);
   for (const li of [...list.children]) {
     show(li);
