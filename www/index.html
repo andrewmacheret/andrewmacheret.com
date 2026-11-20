@@ -25,8 +25,8 @@
 <main>
 
 <header>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ whoami</p>
-  <h1>andrew macheret<span class="cursor" aria-hidden="true">_</span></h1>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ whoami</p>
+  <h1><span data-name>andrew macheret</span><span class="cursor" aria-hidden="true">_</span></h1>
   <p class="dim">software engineer. i build things, mostly for fun.</p>
   <nav>
     <a href="https://github.com/andrewmacheret">github</a>
@@ -36,7 +36,7 @@
 </header>
 
 <section>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ ls projects/ | sort --by=<button type="button" id="sort" aria-label="sort by cool, click to change">cool</button> <span class="comment"># click to re-sort</span></p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ ls projects/ | sort --by=<button type="button" id="sort" aria-label="sort by cool, click to change">cool</button> <span class="comment"># click to re-sort</span></p>
 
   <ol class="projects">
     <li data-date="2026-11-19">
@@ -188,7 +188,7 @@
 </section>
 
 <section>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ ls projects/archive/</p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ ls projects/archive/</p>
   <ul class="toys">
     <li><a href="/projects/raytracer/">raytracer</a> <span class="dim">ray tracing in the browser</span> <a class="src" href="https://github.com/andrewmacheret/raytracer">src</a></li>
     <li><a href="/projects/colorblind/">colorblind</a> <span class="dim">color blindness simulator</span> <a class="src" href="https://github.com/andrewmacheret/colorblind">src</a></li>
@@ -199,12 +199,12 @@
 </section>
 
 <section id="pun" hidden>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ curl -H "Accept: text/plain" https://pun.andrewmacheret.com</p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ curl -LH Accept:text/plain pun.<span data-slug>andrewmacheret</span>.com</p>
   <p id="pun-text"></p>
 </section>
 
-<footer class="dim">
-  <p>$ exit</p>
+<footer>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ exit</p>
 </footer>
 
 <script>
@@ -244,6 +244,51 @@ button.addEventListener('click', () => {
 
 const fromUrl = new URLSearchParams(location.search).get('sort');
 if (KEYS.includes(fromUrl)) setSort(fromUrl);
+
+// type anywhere to rename the site, backspace to delete, escape to undo
+const ORIGINAL_NAME = 'andrew macheret';
+const MAX_NAME = 40;
+const cursor = document.querySelector('h1 .cursor');
+let name = ORIGINAL_NAME;
+
+function renderName() {
+  const slug = name.replace(/[^a-z0-9]/gi, '');
+  document.querySelectorAll('[data-name]').forEach((el) => { el.textContent = name; });
+  document.querySelectorAll('[data-slug]').forEach((el) => { el.textContent = slug; });
+  document.title = name || '\u00a0';
+  const url = new URL(location);
+  if (name === ORIGINAL_NAME) url.searchParams.delete('name');
+  else url.searchParams.set('name', slug);
+  history.replaceState(null, '', url);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+  // let space and enter still press a focused button or link
+  if ((e.key === ' ' || e.key === 'Enter') && e.target.closest('button, a')) return;
+
+  if (e.key === 'Escape') {
+    name = ORIGINAL_NAME;
+  } else if (e.key === 'Backspace') {
+    name = name.slice(0, -1);
+  } else if (e.key.length === 1 && name.length < MAX_NAME) {
+    name += e.key;
+  } else {
+    return;
+  }
+  e.preventDefault();
+  renderName();
+  // keep the cursor solid while typing, like a real terminal
+  cursor.style.animation = 'none';
+  void cursor.offsetWidth;
+  cursor.style.animation = '';
+});
+
+const nameFromUrl = new URLSearchParams(location.search).get('name');
+if (nameFromUrl !== null) {
+  name = nameFromUrl.replace(/[^a-z0-9]/gi, '').slice(0, MAX_NAME);
+  renderName();
+}
 
 fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })
   .then((res) => (res.ok ? res.text() : Promise.reject()))
