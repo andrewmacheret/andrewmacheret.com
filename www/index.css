@@ -215,7 +215,7 @@ footer {
 }
 
 /* hidden until the boot animation reaches them */
-.boot :is(.prompt, header > *, #sort, .projects > li, .toys > li, #pun-text):not(.on) {
+.boot :is(.prompt, header > *, #sort, footer, .projects > li, .toys > li, #pun-text):not(.on) {
   visibility: hidden;
 }
 
