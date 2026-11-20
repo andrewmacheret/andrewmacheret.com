@@ -18,6 +18,8 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: us-east-1
+      # built from the home page links, so new projects show up without editing it
+      - run: python3 scripts/sitemap.py > www/sitemap.xml
       # www/ is the whole site, so anything not in it gets deleted from the bucket
       # projects/ is skipped because each project deploys there from its own repo
       # Without a cache-control header, browsers can keep old files for months
