@@ -290,9 +290,26 @@ let skip = false;
 const wait = (ms) => (skip ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
 const show = (...els) => els.forEach((el) => el.classList.add('on'));
 
+// wait until el is fully scrolled into view
+let stopWaiting = () => {};
+function inView(el) {
+  if (skip) return Promise.resolve();
+  return new Promise((resolve) => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) stopWaiting();
+    }, { threshold: 1 });
+    stopWaiting = () => {
+      observer.disconnect();
+      resolve();
+    };
+    observer.observe(el);
+  });
+}
+
 const caret = cursor.cloneNode(true);
 
 async function typeLine(prompt) {
+  await inView(prompt);
   const cmd = prompt.querySelector('.cmd');
   const walker = document.createTreeWalker(cmd, NodeFilter.SHOW_TEXT);
   const parts = [];
@@ -347,14 +364,18 @@ async function boot() {
     await wait(300);
   }
 
-  const footer = document.querySelector('footer');
-  show(footer);
-  await typeLine(footer.querySelector('.prompt'));
+  const exit = document.querySelector('footer .prompt');
+  await inView(exit);
+  show(exit.parentElement);
+  await typeLine(exit);
   document.documentElement.classList.remove('boot');
 }
 
 if (document.documentElement.classList.contains('boot')) {
-  addEventListener('click', () => { skip = true; }, { once: true });
+  addEventListener('click', () => {
+    skip = true;
+    stopWaiting();
+  }, { once: true });
   boot();
 }
 </script>
