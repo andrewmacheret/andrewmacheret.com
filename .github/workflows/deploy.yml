@@ -1,0 +1,27 @@
+name: Deploy to S3
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      # no --delete: the bucket root also holds icons, files/ and every project under projects/
+      - run: aws s3 sync www s3://andrewmacheret.com --exclude 'projects/*'
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E3GM861BKPK1L2 \
+            --paths '/' '/index.html' '/index.css' '/resume.pdf'
