@@ -4,6 +4,9 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+  # picks up resume edits from Google Docs once a day
+  schedule:
+    - cron: '0 14 * * *'
 
 permissions:
   contents: read
@@ -20,6 +23,14 @@ jobs:
           aws-region: us-east-1
       # built from the home page links, so new projects show up without editing it
       - run: python3 scripts/sitemap.py > www/sitemap.xml
+      # The Google Doc is the source of truth for the resume
+      # --fail stops the deploy if Google sends back an error page instead of a PDF
+      - name: Download resume from Google Docs
+        run: |
+          curl --fail --silent --show-error --location \
+            --output www/resume.pdf \
+            'https://docs.google.com/document/d/1Kyydz3vJ1sYyvfwZWNPxarSqZHmeRYpszG_mF5fqH5o/export?format=pdf'
+          file www/resume.pdf | grep -q 'PDF document'
       # www/ is the whole site, so anything not in it gets deleted from the bucket
       # projects/ is skipped because each project deploys there from its own repo
       # Without a cache-control header, browsers can keep old files for months
