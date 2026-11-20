@@ -51,7 +51,6 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
 <body>
 <div class="scene" aria-hidden="true"><div class="sun"></div><div class="floor"></div></div>
 <div class="crt" aria-hidden="true"></div>
-<div id="sudo" aria-hidden="true" hidden></div>
 <main>
 
 <header>
@@ -375,77 +374,33 @@ function update3d() {
   if (!frame) frame = requestAnimationFrame(render3d);
 }
 
+// middle of an element on the page, ignoring the 3d tilt
+function pageCenter(el) {
+  let x = el.offsetWidth / 2;
+  let y = el.offsetHeight / 2;
+  for (; el; el = el.offsetParent) {
+    x += el.offsetLeft;
+    y += el.offsetTop;
+  }
+  return { x, y };
+}
+
+// tilt around the 3d button so it doesn't move.
+// After scrolling half a screen, tilt around the middle of the screen instead
 function trackScroll() {
+  const main = document.querySelector('main');
+  const button = pageCenter(toggle3d);
+  const away = Math.min(scrollY / (innerHeight / 2), 1);
+  const y = button.y + (scrollY + innerHeight / 2 - button.y) * away;
   root.style.setProperty('--scroll-y', `${scrollY}px`);
+  root.style.setProperty('--pivot-x', `${button.x - main.offsetLeft}px`);
+  root.style.setProperty('--pivot-y', `${y - main.offsetTop}px`);
 }
 
-// the first time 3d turns on, play a fake hacker login. A click skips it
-const sudo = document.getElementById('sudo');
-let introPlayed = false;
-let introPlaying = false;
-let rushIntro = false;
-const pause = (ms) => (rushIntro ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
-
-// parts are plain text or [text, class name]
-function sudoLine(...parts) {
-  const line = document.createElement('div');
-  for (const part of parts) {
-    const [text, className] = Array.isArray(part) ? part : [part];
-    const span = document.createElement('span');
-    span.textContent = text;
-    if (className) span.className = className;
-    line.append(span);
-  }
-  sudo.append(line);
-  return line.lastChild;
-}
-
-async function typeInto(span, text, ms) {
-  for (const ch of text) {
-    span.textContent += ch;
-    await pause(ms);
-  }
-}
-
-async function playIntro() {
-  const slug = document.querySelector('[data-slug]').textContent;
-  sudo.replaceChildren();
-  sudo.classList.remove('fade');
-  sudo.hidden = false;
-  await typeInto(sudoLine([`guest@${slug}`, 'user'], ':', ['~', 'path'], '$ ', ''), 'sudo enable-3d', 35);
-  await pause(250);
-  await typeInto(sudoLine('[sudo] password for guest: ', ''), '********', 45);
-  await pause(250);
-  for (const step of [
-    'loading anaglyph drivers',
-    'mounting /dev/z-axis',
-    'calibrating red/cyan lenses',
-    'raising the sun',
-    'degaussing crt',
-  ]) {
-    sudoLine('[ ', ['OK', 'ok'], ` ] ${step}`);
-    await pause(120);
-  }
-  sudoLine(['ACCESS GRANTED', 'granted']);
-  await pause(700);
-  sudo.classList.add('fade');
-  setTimeout(() => { sudo.hidden = true; }, 500);
-}
-
-toggle3d.addEventListener('click', async () => {
-  if (introPlaying) {
-    rushIntro = true;
-    return;
-  }
+toggle3d.addEventListener('click', () => {
   on3d = !on3d;
   toggle3d.setAttribute('aria-pressed', on3d);
   if (on3d) {
-    if (!introPlayed && !reduceMotion.matches) {
-      introPlaying = true;
-      await playIntro();
-      introPlaying = false;
-    }
-    introPlayed = true;
     trackScroll();
     root.classList.add('three-d');
   } else {
@@ -454,9 +409,11 @@ toggle3d.addEventListener('click', async () => {
   update3d();
 });
 
-addEventListener('scroll', () => {
-  if (root.classList.contains('three-d')) trackScroll();
-}, { passive: true });
+for (const type of ['scroll', 'resize']) {
+  addEventListener(type, () => {
+    if (root.classList.contains('three-d')) trackScroll();
+  }, { passive: true });
+}
 
 addEventListener('pointermove', (e) => {
   if (!on3d || reduceMotion.matches) return;
