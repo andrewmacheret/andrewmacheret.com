@@ -255,10 +255,6 @@ function renderName() {
   document.querySelectorAll('[data-name]').forEach((el) => { el.textContent = name; });
   document.querySelectorAll('[data-slug]').forEach((el) => { el.textContent = slug; });
   document.title = name || '\u00a0';
-  const url = new URL(location);
-  if (name === ORIGINAL_NAME) url.searchParams.delete('name');
-  else url.searchParams.set('name', slug);
-  history.replaceState(null, '', url);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -282,12 +278,6 @@ document.addEventListener('keydown', (e) => {
   void cursor.offsetWidth;
   cursor.style.animation = '';
 });
-
-const nameFromUrl = new URLSearchParams(location.search).get('name');
-if (nameFromUrl !== null) {
-  name = nameFromUrl.replace(/[^a-z0-9]/gi, '').slice(0, MAX_NAME);
-  renderName();
-}
 
 fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })
   .then((res) => (res.ok ? res.text() : Promise.reject()))
