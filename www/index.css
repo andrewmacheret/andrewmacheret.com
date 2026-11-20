@@ -304,29 +304,6 @@ h2 {
   transform: var(--tilt);
 }
 
-/* phones: moving the pivot from javascript on every scroll is too slow there.
-   A scroll timeline slides it along with the screen instead, off the main thread.
-   Sliding down by the scroll, tilting, then sliding back up
-   is the same as tilting around a point in the middle of the screen */
-@media (hover: none) {
-  @supports (animation-timeline: scroll()) {
-    .three-d main {
-      transform-origin: var(--pivot-x, 50%) 50vh calc(var(--depth) * 40px);
-      animation: follow-scroll linear both;
-      animation-timeline: scroll(root);
-    }
-  }
-}
-
-@keyframes follow-scroll {
-  from {
-    transform: translateY(0) var(--tilt) translateY(0);
-  }
-  to {
-    transform: translateY(var(--scroll-max)) var(--tilt) translateY(calc(-1 * var(--scroll-max)));
-  }
-}
-
 .three-d :is(main, header, section, footer, .projects, .toys) {
   transform-style: preserve-3d;
 }
@@ -390,6 +367,28 @@ h2 {
     text-shadow:
       calc(var(--depth) * 1px) 0 rgb(255 40 40 / 0.5),
       calc(var(--depth) * -1px) 0 rgb(0 220 255 / 0.5);
+  }
+
+  /* tilting the whole page needs its pivot moved on every scroll, which phones can't keep up with.
+     Tilt each piece around its own middle instead, so nothing changes while scrolling */
+  .three-d main {
+    transform: none;
+  }
+
+  .three-d .prompt {
+    transform: var(--tilt);
+  }
+
+  .three-d h1 {
+    transform: var(--tilt) translateZ(calc(var(--depth) * 48px));
+  }
+
+  .three-d :is(header > .dim, nav, #pun-text) {
+    transform: var(--tilt) translateZ(calc(var(--depth) * 40px));
+  }
+
+  .three-d :is(.projects, .toys) > li {
+    transform: var(--tilt) translateZ(calc(var(--depth) * (16px + var(--lift))));
   }
 }
 
@@ -512,7 +511,8 @@ h2 {
   /* keep the depth effects but don't swing the page around */
   .three-d main {
     transform: none;
-    animation: none;
+    /* phones tilt each piece with this, so leave just the depth */
+    --tilt: perspective(1000px);
   }
 
   #toggle-3d img {
