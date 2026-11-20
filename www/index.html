@@ -217,7 +217,11 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
 <script>
 const list = document.querySelector('.projects');
 const projects = [...list.children];
-projects.forEach((li, i) => { li.dataset.cool = i; });
+projects.forEach((li, i) => {
+  li.dataset.cool = i;
+  // keep each project's number when the list is re-sorted
+  li.style.counterSet = `project ${i + 1}`;
+});
 
 // "cool" and "date" put the coolest / newest first. A leading "-" flips it.
 function sortProjects(by) {
