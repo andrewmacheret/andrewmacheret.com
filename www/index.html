@@ -425,6 +425,7 @@ const root = document.documentElement;
 const toggle3d = document.getElementById('toggle-3d');
 const gaps = [...document.querySelectorAll('.filters feOffset')];
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const noMouse = matchMedia('(hover: none)');
 let on3d = false;
 // 0 is flat, 1 is all the way 3d
 let depth = 0;
@@ -477,8 +478,9 @@ function trackScroll() {
   const button = pageCenter(toggle3d);
   const away = Math.min(scrollY / (innerHeight / 2), 1);
   const y = button.y + (scrollY + innerHeight / 2 - button.y) * away;
-  root.style.setProperty('--pivot-x', `${button.x - main.offsetLeft}px`);
-  root.style.setProperty('--pivot-y', `${y - main.offsetTop}px`);
+  // set on main, not the root, so scrolling doesn't restyle the whole page
+  main.style.setProperty('--pivot-x', `${button.x - main.offsetLeft}px`);
+  main.style.setProperty('--pivot-y', `${y - main.offsetTop}px`);
   drawFloor();
 }
 
@@ -534,6 +536,13 @@ toggle3d.addEventListener('click', () => {
   if (on3d) {
     trackScroll();
     root.classList.add('three-d');
+    // phones have no mouse to follow, so lean a bit in a random direction instead
+    if (noMouse.matches) {
+      const angle = Math.random() * 2 * Math.PI;
+      const lean = 0.25 + Math.random() * 0.15;
+      eyeGoal.x = 0.5 + lean * Math.cos(angle);
+      eyeGoal.y = 0.5 + lean * Math.sin(angle);
+    }
   } else {
     Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
   }
@@ -546,14 +555,16 @@ for (const type of ['scroll', 'resize']) {
   }, { passive: true });
 }
 
+// touches don't steer the tilt. Lifting a finger would snap it back to flat
 addEventListener('pointermove', (e) => {
-  if (!on3d || reduceMotion.matches) return;
+  if (!on3d || reduceMotion.matches || e.pointerType === 'touch') return;
   eyeGoal.x = 0.5 + 0.7 * ((e.clientX / innerWidth) * 2 - 1);
   eyeGoal.y = 0.5 + 0.7 * ((e.clientY / innerHeight) * 2 - 1);
   update3d();
 });
 
-root.addEventListener('pointerleave', () => {
+root.addEventListener('pointerleave', (e) => {
+  if (e.pointerType === 'touch') return;
   Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
   update3d();
 });
