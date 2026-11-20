@@ -497,4 +497,15 @@ h2 {
   .crt::after {
     animation: none;
   }
+
+  /* typing still plays, but list items fade in without sliding */
+  .boot :is(.projects > li, .toys > li).on {
+    animation-name: fade-in;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
