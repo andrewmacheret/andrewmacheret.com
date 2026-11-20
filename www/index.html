@@ -20,12 +20,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="/index.css">
+<script>
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('boot');
+</script>
 </head>
 <body>
 <main>
 
 <header>
-  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ whoami</p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">whoami</span></p>
   <h1><span data-name>andrew macheret</span><span class="cursor" aria-hidden="true">_</span></h1>
   <p class="dim">software engineer. i build things, mostly for fun.</p>
   <nav>
@@ -36,7 +39,7 @@
 </header>
 
 <section>
-  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ ls projects/ | sort --by=<button type="button" id="sort" aria-label="sort by cool, click to change">cool</button> <span class="comment"># click to re-sort</span></p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">ls projects/ | sort --by=<button type="button" id="sort" aria-label="sort by cool, click to change">cool</button></span> <span class="comment"># click to re-sort</span></p>
 
   <ol class="projects">
     <li data-date="2026-11-19">
@@ -187,7 +190,7 @@
 </section>
 
 <section>
-  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ ls projects/archive/</p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">ls projects/archive/</span></p>
   <ul class="toys">
     <li><a href="/projects/raytracer/">raytracer</a> <span class="dim">ray tracing in the browser</span> <a class="src" href="https://github.com/andrewmacheret/raytracer">src</a></li>
     <li><a href="/projects/colorblind/">colorblind</a> <span class="dim">color blindness simulator</span> <a class="src" href="https://github.com/andrewmacheret/colorblind">src</a></li>
@@ -198,12 +201,12 @@
 </section>
 
 <section id="pun" hidden>
-  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ curl -LH Accept:text/plain pun.<span data-slug>andrewmacheret</span>.com</p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">curl -LH Accept:text/plain pun.<span data-slug>andrewmacheret</span>.com</span></p>
   <p id="pun-text"></p>
 </section>
 
 <footer>
-  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ exit</p>
+  <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">exit</span></p>
 </footer>
 
 <script>
@@ -226,8 +229,10 @@ function sortProjects(by) {
 
 const KEYS = ['cool', '-cool', 'date', '-date'];
 const button = document.getElementById('sort');
+let sortKey = 'cool';
 
 function setSort(key) {
+  sortKey = key;
   button.textContent = key;
   button.setAttribute('aria-label', `sort by ${key}, click to change`);
   sortProjects(key);
@@ -238,7 +243,7 @@ function setSort(key) {
 }
 
 button.addEventListener('click', () => {
-  setSort(KEYS[(KEYS.indexOf(button.textContent) + 1) % KEYS.length]);
+  setSort(KEYS[(KEYS.indexOf(sortKey) + 1) % KEYS.length]);
 });
 
 const fromUrl = new URLSearchParams(location.search).get('sort');
@@ -279,13 +284,89 @@ document.addEventListener('keydown', (e) => {
   cursor.style.animation = '';
 });
 
-fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })
+const punReady = fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })
   .then((res) => (res.ok ? res.text() : Promise.reject()))
   .then((pun) => {
     document.getElementById('pun-text').textContent = pun.trim();
     document.getElementById('pun').hidden = false;
+    return true;
   })
-  .catch(() => {});
+  .catch(() => false);
+
+// on load, type out each command and then show its output
+// a click or scroll skips to the end
+let skip = false;
+const wait = (ms) => (skip ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
+const show = (...els) => els.forEach((el) => el.classList.add('on'));
+
+const caret = cursor.cloneNode(true);
+
+async function typeLine(prompt) {
+  const cmd = prompt.querySelector('.cmd');
+  const walker = document.createTreeWalker(cmd, NodeFilter.SHOW_TEXT);
+  const parts = [];
+  while (walker.nextNode()) parts.push([walker.currentNode, walker.currentNode.data]);
+  parts.forEach(([node]) => { node.data = ''; });
+
+  caret.style.animation = '';
+  cmd.append(caret);
+  show(prompt);
+  await wait(300);
+  caret.style.animation = 'none';
+  for (const [node, text] of parts) {
+    for (const ch of text) {
+      if (skip) break;
+      node.data += ch;
+      await wait(15 + Math.random() * 35);
+    }
+    node.data = text;
+  }
+  caret.remove();
+}
+
+async function boot() {
+  const header = document.querySelector('header');
+  await typeLine(header.querySelector('.prompt'));
+  await wait(150);
+  show(...header.children);
+  await wait(400);
+
+  const sortLine = button.closest('.prompt');
+  await typeLine(sortLine);
+  show(sortLine.querySelector('.comment'));
+  await wait(200);
+  for (const li of [...list.children]) {
+    show(li);
+    await wait(80);
+  }
+  await wait(300);
+
+  const toys = document.querySelector('.toys');
+  await typeLine(toys.previousElementSibling);
+  await wait(150);
+  for (const li of toys.children) {
+    show(li);
+    await wait(50);
+  }
+  await wait(300);
+
+  if (await Promise.race([punReady, wait(2000).then(() => false)])) {
+    await typeLine(document.querySelector('#pun .prompt'));
+    await wait(400);
+    show(document.getElementById('pun-text'));
+    await wait(300);
+  }
+
+  await typeLine(document.querySelector('footer .prompt'));
+  document.documentElement.classList.remove('boot');
+}
+
+if (document.documentElement.classList.contains('boot')) {
+  for (const type of ['pointerdown', 'wheel']) {
+    addEventListener(type, () => { skip = true; }, { once: true, passive: true });
+  }
+  boot();
+}
 </script>
 
 </main>
