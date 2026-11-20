@@ -51,8 +51,8 @@
     </li>
     <li>
       <h2>Chess</h2>
-      <p>Chess in the browser with any mix of human and AI players. Drag and drop, animated AI moves, backed by a Stockfish API on Lambda.</p>
-      <p class="meta"><span>react · lambda</span><span>2015</span></p>
+      <p>Chess in the browser with any mix of human and AI players. Drag and drop, animated AI moves, backed by a Stockfish API.</p>
+      <p class="meta"><span>react</span><span>2015</span></p>
       <p class="links">
         <a href="/projects/chess/">run</a>
         <a href="https://github.com/andrewmacheret/chess">src</a>
@@ -198,9 +198,24 @@
   </ul>
 </section>
 
+<section id="pun" hidden>
+  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ curl pun.andrewmacheret.com</p>
+  <p id="pun-text"></p>
+</section>
+
 <footer class="dim">
   <p>$ exit</p>
 </footer>
+
+<script>
+fetch('https://pun.andrewmacheret.com/')
+  .then((res) => res.json())
+  .then(({ pun }) => {
+    document.getElementById('pun-text').textContent = pun.trim();
+    document.getElementById('pun').hidden = false;
+  })
+  .catch(() => {});
+</script>
 
 </main>
 </body>
