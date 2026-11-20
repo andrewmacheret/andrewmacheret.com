@@ -20,7 +20,8 @@ jobs:
           aws-region: us-east-1
       # www/ is the whole site, so anything not in it gets deleted from the bucket
       # projects/ is skipped because each project deploys there from its own repo
-      - run: aws s3 sync www s3://andrewmacheret.com --delete --exclude 'projects/*'
+      # Without a cache-control header, browsers can keep old files for months
+      - run: aws s3 sync www s3://andrewmacheret.com --delete --exclude 'projects/*' --cache-control max-age=300
       # one wildcard counts as a single path for billing, and covers new files too
       - name: Invalidate CloudFront cache
         run: |
