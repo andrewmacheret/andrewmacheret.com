@@ -45,7 +45,8 @@
 <script>
 // start at the top on reload instead of where you left off
 history.scrollRestoration = 'manual';
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('boot');
+// added here, not in the html, so the page still shows without javascript
+document.documentElement.classList.add('boot');
 </script>
 </head>
 <body>
@@ -666,15 +667,11 @@ async function boot() {
   document.documentElement.classList.remove('boot');
 }
 
-if (document.documentElement.classList.contains('boot')) {
-  addEventListener('click', () => {
-    skip = true;
-    stopWaiting();
-  }, { once: true });
-  boot();
-} else {
-  focusName();
-}
+addEventListener('click', () => {
+  skip = true;
+  stopWaiting();
+}, { once: true });
+boot();
 </script>
 
 </main>
