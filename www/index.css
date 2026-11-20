@@ -257,6 +257,13 @@ h2 {
   color: var(--dim);
 }
 
+.links a.primary {
+  background: rgba(126, 231, 135, 0.1);
+  padding: 0 4px;
+  margin: 0 -4px;
+  border-radius: 3px;
+}
+
 .toys {
   list-style: none;
   padding: 0;

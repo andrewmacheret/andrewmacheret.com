@@ -86,10 +86,10 @@ document.documentElement.classList.add('boot');
       <p>Which way Seattle's I-5 express lanes are open, in your macOS menu bar or on an Android home screen widget.</p>
       <p class="meta"><span>swift · kotlin</span><span>2026</span></p>
       <p class="links">
+        <a href="https://github.com/andrewmacheret/i5-macos-menubar/releases/latest" data-os="mac">download/mac</a>
+        <a href="https://github.com/andrewmacheret/i5-android/releases/latest" data-os="android">download/android</a>
         <a href="https://github.com/andrewmacheret/i5-macos-menubar">src/mac</a>
         <a href="https://github.com/andrewmacheret/i5-android">src/android</a>
-        <a href="https://github.com/andrewmacheret/i5-macos-menubar/releases/latest">download/mac</a>
-        <a href="https://github.com/andrewmacheret/i5-android/releases/latest">download/android</a>
       </p>
     </li>
     <li data-date="2015-11-25">
@@ -97,7 +97,7 @@ document.documentElement.classList.add('boot');
       <p>Chess in the browser with any mix of human and AI players. Drag and drop, animated AI moves, with Stockfish running right in the browser.</p>
       <p class="meta"><span>react</span><span>2015</span></p>
       <p class="links">
-        <a href="/projects/chess/">run</a>
+        <a class="primary" href="/projects/chess/">run</a>
         <a href="https://github.com/andrewmacheret/chess">src</a>
       </p>
     </li>
@@ -106,7 +106,7 @@ document.documentElement.classList.add('boot');
       <p>A mobile-friendly 3D Rubik's Cube with a built-in solver.</p>
       <p class="meta"><span>three.js</span><span>2015</span></p>
       <p class="links">
-        <a href="/projects/cube/">run</a>
+        <a class="primary" href="/projects/cube/">run</a>
         <a href="https://github.com/andrewmacheret/cube">src</a>
       </p>
     </li>
@@ -124,7 +124,7 @@ document.documentElement.classList.add('boot');
       <p>A random dad joke, on demand. Also powers my shell's message of the day.</p>
       <p class="meta"><span>python · lambda</span><span>2014</span></p>
       <p class="links">
-        <a href="https://pun.andrewmacheret.com">run</a>
+        <a class="primary" href="https://pun.andrewmacheret.com">run</a>
         <a href="https://github.com/andrewmacheret/pun-server-lambda">src</a>
       </p>
     </li>
@@ -141,7 +141,7 @@ document.documentElement.classList.add('boot');
       <p>A map of the airports, military bases and national parks near you where drones aren't allowed.</p>
       <p class="meta"><span>leaflet · turf.js</span><span>2015</span></p>
       <p class="links">
-        <a href="/projects/no-drone-zones/">run</a>
+        <a class="primary" href="/projects/no-drone-zones/">run</a>
         <a href="https://github.com/andrewmacheret/no-drone-zones">src</a>
       </p>
     </li>
@@ -150,7 +150,7 @@ document.documentElement.classList.add('boot');
       <p>Today's NHL games, scores and standings at a glance.</p>
       <p class="meta"><span>javascript · lambda</span><span>2016</span></p>
       <p class="links">
-        <a href="/projects/nhl/">run</a>
+        <a class="primary" href="/projects/nhl/">run</a>
         <a href="https://github.com/andrewmacheret/nhl-client">src</a>
         <a href="https://github.com/andrewmacheret/nhl-server-lambda">src/api</a>
       </p>
@@ -160,7 +160,7 @@ document.documentElement.classList.add('boot');
       <p>Where every VTA bus and train in the South Bay should be right now, worked out from the published timetable.</p>
       <p class="meta"><span>python · lambda · leaflet</span><span>2015</span></p>
       <p class="links">
-        <a href="/projects/vta-tracker/">run</a>
+        <a class="primary" href="/projects/vta-tracker/">run</a>
         <a href="https://github.com/andrewmacheret/vta-tracker-lambda">src</a>
       </p>
     </li>
@@ -169,7 +169,7 @@ document.documentElement.classList.add('boot');
       <p>Play the Monty Hall problem and watch the win rates converge across everyone who's played.</p>
       <p class="meta"><span>react · java · dynamodb</span><span>2016</span></p>
       <p class="links">
-        <a href="/projects/montyhall/">run</a>
+        <a class="primary" href="/projects/montyhall/">run</a>
         <a href="https://github.com/andrewmacheret/montyhall-client">src</a>
         <a href="https://github.com/andrewmacheret/montyhall-server-lambda">src/api</a>
       </p>
@@ -275,6 +275,11 @@ document.documentElement.classList.add('boot');
 </svg>
 
 <script>
+// highlight the download link for the visitor's OS
+const os = /android/i.test(navigator.userAgent) ? 'android'
+  : /mac/i.test(navigator.platform) && navigator.maxTouchPoints < 2 ? 'mac' : null;
+document.querySelectorAll(`[data-os="${os}"]`).forEach(a => a.classList.add('primary'));
+
 const list = document.querySelector('.projects');
 const projects = [...list.children];
 projects.forEach((li, i) => {
