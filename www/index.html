@@ -49,7 +49,7 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
 </script>
 </head>
 <body>
-<div class="scene" aria-hidden="true"><div class="sun"></div><div class="floor"></div></div>
+<div class="scene" aria-hidden="true"><div class="sun"></div><canvas class="floor"></canvas></div>
 <div class="crt" aria-hidden="true"></div>
 <main>
 
@@ -392,7 +392,6 @@ function trackScroll() {
   const button = pageCenter(toggle3d);
   const away = Math.min(scrollY / (innerHeight / 2), 1);
   const y = button.y + (scrollY + innerHeight / 2 - button.y) * away;
-  root.style.setProperty('--scroll-y', `${scrollY}px`);
   root.style.setProperty('--pivot-x', `${button.x - main.offsetLeft}px`);
   root.style.setProperty('--pivot-y', `${y - main.offsetTop}px`);
 }
@@ -480,6 +479,53 @@ async function typeLine(prompt) {
       await wait(15 + Math.random() * 35);
     }
     node.data = text;
+  drawFloor();
+}
+
+// the grid floor rolls toward you as you scroll. It's drawn on a canvas
+// because thin far-off lines in a css 3d grid flicker
+const floor = document.querySelector('.floor');
+function drawFloor() {
+  const dpr = devicePixelRatio || 1;
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (floor.width !== w || floor.height !== h) {
+    floor.width = w;
+    floor.height = h;
+  }
+  const ctx = floor.getContext('2d');
+  // the horizon is 18% up from the bottom, where the sun sets
+  const horizon = h * 0.82;
+  const near = h - horizon;
+  const step = 0.25;
+  ctx.clearRect(0, 0, w, h);
+  // solid ground hides the bottom of the sun
+  ctx.fillStyle = '#0b0d0c';
+  ctx.fillRect(0, horizon, w, near);
+  // fade out fast toward the horizon, where the lines bunch up
+  const fade = ctx.createLinearGradient(0, horizon, 0, h);
+  fade.addColorStop(0, 'rgb(126 231 135 / 0)');
+  fade.addColorStop(0.3, 'rgb(126 231 135 / 0.03)');
+  fade.addColorStop(1, 'rgb(126 231 135 / 0.3)');
+  ctx.fillStyle = fade;
+  ctx.strokeStyle = fade;
+  ctx.lineWidth = dpr;
+
+  // a line z away sits near / z below the horizon. z = 1 is the bottom of the screen
+  const shift = ((scrollY / 96) * step) % step;
+  for (let z = step - shift; near / z > dpr; z += step) {
+    if (near / z < near + dpr) ctx.fillRect(0, horizon + near / z - dpr / 2, w, dpr);
+  }
+
+  // lines going into the distance all meet in the middle of the horizon
+  const gap = step * near;
+  const count = Math.ceil((1.5 * w) / gap);
+  ctx.beginPath();
+  for (let i = -count; i <= count; i++) {
+    ctx.moveTo(w / 2, horizon);
+    ctx.lineTo(w / 2 + i * gap, h);
+  }
+  ctx.stroke();
   }
   caret.remove();
 }

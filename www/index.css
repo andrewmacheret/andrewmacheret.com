@@ -356,22 +356,11 @@ h2 {
     #000 50% 56%, transparent 56% 60%, #000 60% 65%, transparent 65% 70%, #000 70%);
 }
 
-/* a grid floor that rolls toward you as you scroll. It's solid so it hides the bottom of the sun */
 .floor {
   position: absolute;
-  left: -50%;
-  right: -50%;
-  bottom: 0;
-  height: 90%;
-  background-color: var(--bg);
-  background-image:
-    linear-gradient(var(--bg), transparent 85%),
-    linear-gradient(rgb(126 231 135 / 0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(126 231 135 / 0.2) 1px, transparent 1px);
-  background-size: auto, 48px 48px, 48px 48px;
-  background-position: 0 0, 50% calc(var(--scroll-y, 0px) * 0.5), 50% 0;
-  transform: perspective(400px) rotateX(60deg);
-  transform-origin: 50% 100%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* old monitor: scanlines, dark corners and a faint bar rolling down */
