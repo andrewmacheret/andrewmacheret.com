@@ -214,6 +214,22 @@ footer {
   padding-top: 16px;
 }
 
+/* hidden until the boot animation reaches them */
+.boot :is(.prompt, header > *, .comment, .projects > li, .toys > li, #pun-text):not(.on) {
+  visibility: hidden;
+}
+
+.boot :is(.projects > li, .toys > li).on {
+  animation: appear 0.3s ease-out;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 @media (max-width: 560px) {
   html {
     font-size: 14px;
