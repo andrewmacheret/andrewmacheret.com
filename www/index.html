@@ -55,7 +55,7 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
 
 <header>
   <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">whoami</span></p>
-  <h1><span data-name>andrew macheret</span><span class="cursor" aria-hidden="true">_</span></h1>
+  <h1><span id="name" contenteditable="plaintext-only" role="textbox" aria-label="rename this site" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="done">andrew macheret</span><span class="cursor" aria-hidden="true">_</span><span class="ghost" aria-hidden="true"></span></h1>
   <p class="dim">software engineer. i build things, mostly for fun.</p>
   <nav>
     <a href="https://github.com/andrewmacheret">github</a>
@@ -300,39 +300,124 @@ function sortProjects(by) {
 const select = document.getElementById('sort');
 select.addEventListener('change', () => sortProjects(select.value));
 
-// type anywhere to rename the site, backspace to delete, escape to undo
+// the name is a real text box. Type anywhere to edit it, escape to undo
 const ORIGINAL_NAME = 'andrew macheret';
+const nameBox = document.getElementById('name');
 const cursor = document.querySelector('h1 .cursor');
-let name = ORIGINAL_NAME;
+const ghost = document.querySelector('h1 .ghost');
+const mark = document.createElement('span');
+mark.textContent = '_';
 
 function renderName() {
+  const name = nameBox.textContent;
   const slug = name.replace(/[^a-z0-9]/gi, '');
-  document.querySelectorAll('[data-name]').forEach((el) => { el.textContent = name; });
   document.querySelectorAll('[data-slug]').forEach((el) => { el.textContent = slug; });
   document.title = name || '\u00a0';
 }
 
+// where the caret is in the name, as a letter count.
+// null when the name isn't focused, -1 when some text is selected
+function caretAt() {
+  const sel = getSelection();
+  if (document.activeElement !== nameBox || !sel.rangeCount) return null;
+  const range = sel.getRangeAt(0);
+  if (!range.collapsed) return -1;
+  const before = document.createRange();
+  before.selectNodeContents(nameBox);
+  before.setEnd(range.endContainer, range.endOffset);
+  return before.toString().length;
+}
+
+function setCaret(at) {
+  const text = nameBox.firstChild;
+  if (text) getSelection().collapse(text, Math.min(at, text.length));
+}
+
+function focusName() {
+  nameBox.focus({ preventScroll: true });
+  setCaret(nameBox.textContent.length);
+}
+
+// where the cursor would sit after the first n letters, measured on a hidden copy
+function spot(n) {
+  ghost.textContent = nameBox.textContent.slice(0, n);
+  ghost.append(mark);
+  return { x: mark.offsetLeft, y: mark.offsetTop };
+}
+
+// the _ cursor sits after the name. If the caret is earlier, slide it back under that letter
+function placeCursor() {
+  const at = caretAt();
+  const end = nameBox.textContent.length;
+  let x = 0;
+  let y = 0;
+  if (at !== null && at >= 0 && at < end) {
+    const here = spot(at);
+    const last = spot(end);
+    x = here.x - last.x;
+    y = here.y - last.y;
+  }
+  cursor.style.left = x ? `${x}px` : '';
+  cursor.style.top = y ? `${y}px` : '';
+  // hide it while text is selected so the highlight shows
+  cursor.style.visibility = at === -1 ? 'hidden' : '';
+  // keep the cursor solid while typing, like a real terminal
+  cursor.style.animation = 'none';
+  void cursor.offsetWidth;
+  cursor.style.animation = '';
+}
+
+function resetName() {
+  nameBox.textContent = ORIGINAL_NAME;
+  if (document.activeElement === nameBox) setCaret(ORIGINAL_NAME.length);
+  renderName();
+  placeCursor();
+}
+
+nameBox.addEventListener('input', () => {
+  // keep it one line of plain text, even after pasting
+  const text = nameBox.textContent;
+  const clean = text.replace(/[\r\n\t\u00a0]/g, ' ');
+  if (clean !== text || nameBox.childElementCount) {
+    const at = caretAt();
+    nameBox.textContent = clean;
+    setCaret(at ?? clean.length);
+  }
+  renderName();
+  placeCursor();
+});
+
+document.addEventListener('selectionchange', placeCursor);
+nameBox.addEventListener('blur', placeCursor);
+addEventListener('resize', placeCursor);
+
+// clicking the _ or the empty space next to the name focuses it too
+document.querySelector('h1').addEventListener('click', (e) => {
+  if (e.target !== nameBox) focusName();
+});
+
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+  if (e.target === nameBox) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      nameBox.blur();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      resetName();
+    }
+    return;
+  }
   // let the sort dropdown and links keep their own keys
   if (e.target.closest('select')) return;
   if ((e.key === ' ' || e.key === 'Enter') && e.target.closest('a, button')) return;
 
   if (e.key === 'Escape') {
-    name = ORIGINAL_NAME;
-  } else if (e.key === 'Backspace') {
-    name = name.slice(0, -1);
-  } else if (e.key.length === 1) {
-    name += e.key;
-  } else {
-    return;
+    resetName();
+  } else if (e.key.length === 1 || e.key === 'Backspace') {
+    // moving focus here sends this key to the name box
+    focusName();
   }
-  e.preventDefault();
-  renderName();
-  // keep the cursor solid while typing, like a real terminal
-  cursor.style.animation = 'none';
-  void cursor.offsetWidth;
-  cursor.style.animation = '';
 });
 
 // 3d mode tilts the page toward the mouse and floats each part at its own depth
@@ -394,6 +479,53 @@ function trackScroll() {
   const y = button.y + (scrollY + innerHeight / 2 - button.y) * away;
   root.style.setProperty('--pivot-x', `${button.x - main.offsetLeft}px`);
   root.style.setProperty('--pivot-y', `${y - main.offsetTop}px`);
+  drawFloor();
+}
+
+// the grid floor rolls toward you as you scroll. It's drawn on a canvas
+// because thin far-off lines in a css 3d grid flicker
+const floor = document.querySelector('.floor');
+function drawFloor() {
+  const dpr = devicePixelRatio || 1;
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (floor.width !== w || floor.height !== h) {
+    floor.width = w;
+    floor.height = h;
+  }
+  const ctx = floor.getContext('2d');
+  // the horizon is 18% up from the bottom, where the sun sets
+  const horizon = h * 0.82;
+  const near = h - horizon;
+  const step = 0.25;
+  ctx.clearRect(0, 0, w, h);
+  // solid ground hides the bottom of the sun
+  ctx.fillStyle = '#0b0d0c';
+  ctx.fillRect(0, horizon, w, near);
+  // fade out fast toward the horizon, where the lines bunch up
+  const fade = ctx.createLinearGradient(0, horizon, 0, h);
+  fade.addColorStop(0, 'rgb(126 231 135 / 0)');
+  fade.addColorStop(0.3, 'rgb(126 231 135 / 0.03)');
+  fade.addColorStop(1, 'rgb(126 231 135 / 0.3)');
+  ctx.fillStyle = fade;
+  ctx.strokeStyle = fade;
+  ctx.lineWidth = dpr;
+
+  // a line z away sits near / z below the horizon. z = 1 is the bottom of the screen
+  const shift = ((scrollY / 96) * step) % step;
+  for (let z = step - shift; near / z > dpr; z += step) {
+    if (near / z < near + dpr) ctx.fillRect(0, horizon + near / z - dpr / 2, w, dpr);
+  }
+
+  // lines going into the distance all meet in the middle of the horizon
+  const gap = step * near;
+  const count = Math.ceil((1.5 * w) / gap);
+  ctx.beginPath();
+  for (let i = -count; i <= count; i++) {
+    ctx.moveTo(w / 2, horizon);
+    ctx.lineTo(w / 2 + i * gap, h);
+  }
+  ctx.stroke();
 }
 
 toggle3d.addEventListener('click', () => {
@@ -479,53 +611,6 @@ async function typeLine(prompt) {
       await wait(15 + Math.random() * 35);
     }
     node.data = text;
-  drawFloor();
-}
-
-// the grid floor rolls toward you as you scroll. It's drawn on a canvas
-// because thin far-off lines in a css 3d grid flicker
-const floor = document.querySelector('.floor');
-function drawFloor() {
-  const dpr = devicePixelRatio || 1;
-  const w = Math.round(innerWidth * dpr);
-  const h = Math.round(innerHeight * dpr);
-  if (floor.width !== w || floor.height !== h) {
-    floor.width = w;
-    floor.height = h;
-  }
-  const ctx = floor.getContext('2d');
-  // the horizon is 18% up from the bottom, where the sun sets
-  const horizon = h * 0.82;
-  const near = h - horizon;
-  const step = 0.25;
-  ctx.clearRect(0, 0, w, h);
-  // solid ground hides the bottom of the sun
-  ctx.fillStyle = '#0b0d0c';
-  ctx.fillRect(0, horizon, w, near);
-  // fade out fast toward the horizon, where the lines bunch up
-  const fade = ctx.createLinearGradient(0, horizon, 0, h);
-  fade.addColorStop(0, 'rgb(126 231 135 / 0)');
-  fade.addColorStop(0.3, 'rgb(126 231 135 / 0.03)');
-  fade.addColorStop(1, 'rgb(126 231 135 / 0.3)');
-  ctx.fillStyle = fade;
-  ctx.strokeStyle = fade;
-  ctx.lineWidth = dpr;
-
-  // a line z away sits near / z below the horizon. z = 1 is the bottom of the screen
-  const shift = ((scrollY / 96) * step) % step;
-  for (let z = step - shift; near / z > dpr; z += step) {
-    if (near / z < near + dpr) ctx.fillRect(0, horizon + near / z - dpr / 2, w, dpr);
-  }
-
-  // lines going into the distance all meet in the middle of the horizon
-  const gap = step * near;
-  const count = Math.ceil((1.5 * w) / gap);
-  ctx.beginPath();
-  for (let i = -count; i <= count; i++) {
-    ctx.moveTo(w / 2, horizon);
-    ctx.lineTo(w / 2 + i * gap, h);
-  }
-  ctx.stroke();
   }
   caret.remove();
 }
@@ -535,6 +620,7 @@ async function boot() {
   await typeLine(header.querySelector('.prompt'));
   await wait(150);
   show(...header.children);
+  if (document.activeElement === document.body) focusName();
   await wait(400);
 
   await typeLine(select.closest('.prompt'));
@@ -575,6 +661,8 @@ if (document.documentElement.classList.contains('boot')) {
     stopWaiting();
   }, { once: true });
   boot();
+} else {
+  focusName();
 }
 </script>
 
