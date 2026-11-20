@@ -343,7 +343,9 @@ async function boot() {
     await wait(300);
   }
 
-  await typeLine(document.querySelector('footer .prompt'));
+  const footer = document.querySelector('footer');
+  show(footer);
+  await typeLine(footer.querySelector('.prompt'));
   document.documentElement.classList.remove('boot');
 }
 
