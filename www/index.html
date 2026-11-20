@@ -49,6 +49,9 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
 </script>
 </head>
 <body>
+<div class="scene" aria-hidden="true"><div class="sun"></div><div class="floor"></div></div>
+<div class="crt" aria-hidden="true"></div>
+<div id="sudo" aria-hidden="true" hidden></div>
 <main>
 
 <header>
@@ -376,10 +379,73 @@ function trackScroll() {
   root.style.setProperty('--scroll-y', `${scrollY}px`);
 }
 
-toggle3d.addEventListener('click', () => {
+// the first time 3d turns on, play a fake hacker login. A click skips it
+const sudo = document.getElementById('sudo');
+let introPlayed = false;
+let introPlaying = false;
+let rushIntro = false;
+const pause = (ms) => (rushIntro ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
+
+// parts are plain text or [text, class name]
+function sudoLine(...parts) {
+  const line = document.createElement('div');
+  for (const part of parts) {
+    const [text, className] = Array.isArray(part) ? part : [part];
+    const span = document.createElement('span');
+    span.textContent = text;
+    if (className) span.className = className;
+    line.append(span);
+  }
+  sudo.append(line);
+  return line.lastChild;
+}
+
+async function typeInto(span, text, ms) {
+  for (const ch of text) {
+    span.textContent += ch;
+    await pause(ms);
+  }
+}
+
+async function playIntro() {
+  const slug = document.querySelector('[data-slug]').textContent;
+  sudo.replaceChildren();
+  sudo.classList.remove('fade');
+  sudo.hidden = false;
+  await typeInto(sudoLine([`guest@${slug}`, 'user'], ':', ['~', 'path'], '$ ', ''), 'sudo enable-3d', 35);
+  await pause(250);
+  await typeInto(sudoLine('[sudo] password for guest: ', ''), '********', 45);
+  await pause(250);
+  for (const step of [
+    'loading anaglyph drivers',
+    'mounting /dev/z-axis',
+    'calibrating red/cyan lenses',
+    'raising the sun',
+    'degaussing crt',
+  ]) {
+    sudoLine('[ ', ['OK', 'ok'], ` ] ${step}`);
+    await pause(120);
+  }
+  sudoLine(['ACCESS GRANTED', 'granted']);
+  await pause(700);
+  sudo.classList.add('fade');
+  setTimeout(() => { sudo.hidden = true; }, 500);
+}
+
+toggle3d.addEventListener('click', async () => {
+  if (introPlaying) {
+    rushIntro = true;
+    return;
+  }
   on3d = !on3d;
   toggle3d.setAttribute('aria-pressed', on3d);
   if (on3d) {
+    if (!introPlayed && !reduceMotion.matches) {
+      introPlaying = true;
+      await playIntro();
+      introPlaying = false;
+    }
+    introPlayed = true;
     trackScroll();
     root.classList.add('three-d');
   } else {
