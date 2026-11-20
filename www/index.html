@@ -59,6 +59,7 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
     <a href="https://github.com/andrewmacheret">github</a>
     <a href="mailto:andrew.macheret@proton.me">email</a>
     <a href="/resume.pdf">resume</a>
+    <button type="button" id="toggle-3d" aria-pressed="false">3d<img src="/3d.png" alt="" width="48" height="22"></button>
   </nav>
 </header>
 
@@ -241,6 +242,31 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentEl
   <p class="prompt"><span class="user">guest@<span data-slug>andrewmacheret</span></span>:<span class="path">~</span>$ <span class="cmd">exit</span></p>
 </footer>
 
+<!-- 3d mode: red/cyan copies for each eye. A wider gap pops out further with 3d glasses -->
+<svg class="filters" aria-hidden="true">
+  <filter id="pop-near" color-interpolation-filters="sRGB">
+    <feColorMatrix in="SourceGraphic" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/>
+    <feOffset data-gap="3" result="left"/>
+    <feColorMatrix in="SourceGraphic" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+    <feOffset data-gap="-3" result="right"/>
+    <feComposite in="left" in2="right" operator="arithmetic" k2="1" k3="1"/>
+  </filter>
+  <filter id="pop-mid" color-interpolation-filters="sRGB">
+    <feColorMatrix in="SourceGraphic" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/>
+    <feOffset data-gap="1.5" result="left"/>
+    <feColorMatrix in="SourceGraphic" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+    <feOffset data-gap="-1.5" result="right"/>
+    <feComposite in="left" in2="right" operator="arithmetic" k2="1" k3="1"/>
+  </filter>
+  <filter id="pop-far" color-interpolation-filters="sRGB">
+    <feColorMatrix in="SourceGraphic" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/>
+    <feOffset data-gap="0.75" result="left"/>
+    <feColorMatrix in="SourceGraphic" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+    <feOffset data-gap="-0.75" result="right"/>
+    <feComposite in="left" in2="right" operator="arithmetic" k2="1" k3="1"/>
+  </filter>
+</svg>
+
 <script>
 const list = document.querySelector('.projects');
 const projects = [...list.children];
@@ -288,7 +314,7 @@ document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
   // let the sort dropdown and links keep their own keys
   if (e.target.closest('select')) return;
-  if ((e.key === ' ' || e.key === 'Enter') && e.target.closest('a')) return;
+  if ((e.key === ' ' || e.key === 'Enter') && e.target.closest('a, button')) return;
 
   if (e.key === 'Escape') {
     name = ORIGINAL_NAME;
@@ -305,6 +331,77 @@ document.addEventListener('keydown', (e) => {
   cursor.style.animation = 'none';
   void cursor.offsetWidth;
   cursor.style.animation = '';
+});
+
+// 3d mode tilts the page toward the mouse and floats each part at its own depth
+const root = document.documentElement;
+const toggle3d = document.getElementById('toggle-3d');
+const gaps = [...document.querySelectorAll('.filters feOffset')];
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let on3d = false;
+// 0 is flat, 1 is all the way 3d
+let depth = 0;
+// where you look from. 0.5, 0.5 is a little below and to the right
+const eye = { x: 0.5, y: 0.5 };
+const eyeGoal = { x: 0.5, y: 0.5 };
+let frame = 0;
+
+function render3d() {
+  frame = 0;
+  const ease = reduceMotion.matches ? 1 : 0.08;
+  const goal = on3d ? 1 : 0;
+  depth += (goal - depth) * ease;
+  eye.x += (eyeGoal.x - eye.x) * ease;
+  eye.y += (eyeGoal.y - eye.y) * ease;
+  const settled = Math.max(
+    Math.abs(goal - depth), Math.abs(eyeGoal.x - eye.x), Math.abs(eyeGoal.y - eye.y),
+  ) < 0.001;
+  if (settled) {
+    depth = goal;
+    Object.assign(eye, eyeGoal);
+  }
+  root.style.setProperty('--depth', depth);
+  root.style.setProperty('--eye-x', eye.x);
+  root.style.setProperty('--eye-y', eye.y);
+  gaps.forEach((el) => el.setAttribute('dx', el.dataset.gap * depth));
+  if (!on3d && depth === 0) root.classList.remove('three-d');
+  if (!settled) frame = requestAnimationFrame(render3d);
+}
+
+function update3d() {
+  if (!frame) frame = requestAnimationFrame(render3d);
+}
+
+function trackScroll() {
+  root.style.setProperty('--scroll-y', `${scrollY}px`);
+}
+
+toggle3d.addEventListener('click', () => {
+  on3d = !on3d;
+  toggle3d.setAttribute('aria-pressed', on3d);
+  if (on3d) {
+    trackScroll();
+    root.classList.add('three-d');
+  } else {
+    Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
+  }
+  update3d();
+});
+
+addEventListener('scroll', () => {
+  if (root.classList.contains('three-d')) trackScroll();
+}, { passive: true });
+
+addEventListener('pointermove', (e) => {
+  if (!on3d || reduceMotion.matches) return;
+  eyeGoal.x = 0.5 + 0.7 * ((e.clientX / innerWidth) * 2 - 1);
+  eyeGoal.y = 0.5 + 0.7 * ((e.clientY / innerHeight) * 2 - 1);
+  update3d();
+});
+
+root.addEventListener('pointerleave', () => {
+  Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
+  update3d();
 });
 
 const punReady = fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })

@@ -128,6 +128,54 @@ nav a::before {
   color: var(--dim);
 }
 
+#toggle-3d {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  /* red and cyan edges, like a 3d movie without the glasses */
+  text-shadow: -1px 0 rgb(255 40 40 / 0.8), 1px 0 rgb(0 220 255 / 0.8);
+}
+
+#toggle-3d::before {
+  content: "./";
+  color: var(--dim);
+  text-shadow: none;
+}
+
+#toggle-3d:hover,
+#toggle-3d:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#toggle-3d:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#toggle-3d img {
+  height: 1.4em;
+  width: auto;
+  margin-left: 8px;
+  transform: rotate(-8deg);
+  transition: transform 0.3s ease-out;
+}
+
+#toggle-3d:hover img {
+  transform: rotate(6deg) scale(1.1);
+}
+
+#toggle-3d[aria-pressed="true"] img {
+  transform: translateY(-3px) scale(1.2);
+  filter: drop-shadow(0 0 6px rgb(126 231 135 / 0.6));
+}
+
 section {
   margin-bottom: 64px;
 }
@@ -209,6 +257,91 @@ h2 {
   color: var(--dim);
 }
 
+.filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* 3d mode. The script moves --depth from 0 (flat) to 1 (full 3d),
+   and moves --eye-x and --eye-y with the mouse */
+@property --lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.three-d {
+  overflow-x: hidden;
+}
+
+.three-d main {
+  /* pivot around the middle of the screen, not the middle of the whole page */
+  transform-origin: 50% calc(var(--scroll-y, 0px) + 50vh);
+  transform: perspective(1000px)
+    rotateX(calc(var(--depth) * var(--eye-y) * 10deg))
+    rotateY(calc(var(--depth) * var(--eye-x) * -12deg));
+}
+
+.three-d :is(main, header, section, footer, .projects, .toys) {
+  transform-style: preserve-3d;
+}
+
+.three-d h1 {
+  --x: calc(var(--depth) * var(--eye-x) * 3px);
+  --y: calc(var(--depth) * var(--eye-y) * 3px);
+  transform: translateZ(calc(var(--depth) * 48px));
+  filter: url(#pop-near);
+  /* block letters. Each copy sits a bit further back and darker */
+  text-shadow:
+    var(--x) var(--y) #5fcf6a,
+    calc(var(--x) * 2) calc(var(--y) * 2) #4ab556,
+    calc(var(--x) * 3) calc(var(--y) * 3) #3a9a46,
+    calc(var(--x) * 4) calc(var(--y) * 4) #2d7f38,
+    calc(var(--x) * 5) calc(var(--y) * 5) #21652b,
+    calc(var(--x) * 6) calc(var(--y) * 6) #174c1f,
+    calc(var(--x) * 7) calc(var(--y) * 7) #0f3415,
+    calc(var(--x) * 8) calc(var(--y) * 8) #0a2410,
+    calc(var(--x) * 10) calc(var(--y) * 10) 12px rgb(0 0 0 / 0.7);
+}
+
+.three-d :is(header > .dim, nav, #pun-text) {
+  transform: translateZ(calc(var(--depth) * 40px));
+  filter: url(#pop-mid);
+}
+
+.three-d :is(.projects, .toys) > li {
+  transform: translateZ(calc(var(--depth) * (16px + var(--lift))));
+  filter: url(#pop-far);
+  transition: --lift 0.3s ease-out;
+}
+
+.three-d .projects > li:hover {
+  --lift: 48px;
+  filter: url(#pop-mid);
+}
+
+/* a grid floor that rolls toward you as you scroll */
+.three-d body::before {
+  content: "";
+  position: fixed;
+  left: -50vw;
+  right: -50vw;
+  bottom: 0;
+  height: 90vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--depth);
+  background-image:
+    linear-gradient(rgb(126 231 135 / 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(126 231 135 / 0.2) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: 50% calc(var(--scroll-y, 0px) * 0.5);
+  transform: perspective(400px) rotateX(60deg);
+  transform-origin: 50% 100%;
+  mask-image: linear-gradient(to top, #000, transparent 85%);
+}
+
 /* hidden until the boot animation reaches them */
 .boot :is(.prompt, header > *, #sort, footer, .projects > li, .toys > li, #pun-text):not(.on) {
   visibility: hidden;
@@ -246,5 +379,14 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   .cursor {
     animation: none;
+  }
+
+  /* keep the depth effects but don't swing the page around */
+  .three-d main {
+    transform: none;
+  }
+
+  #toggle-3d img {
+    transition: none;
   }
 }
