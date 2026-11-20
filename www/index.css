@@ -298,9 +298,33 @@ h2 {
 .three-d main {
   /* pivot around the 3d button so it stays put. The z matches how far nav floats */
   transform-origin: var(--pivot-x, 50%) var(--pivot-y, 50vh) calc(var(--depth) * 40px);
-  transform: perspective(1000px)
+  --tilt: perspective(1000px)
     rotateX(calc(var(--depth) * (var(--eye-y) - 0.5) * 30deg))
     rotateY(calc(var(--depth) * (var(--eye-x) - 0.5) * -40deg));
+  transform: var(--tilt);
+}
+
+/* phones: moving the pivot from javascript on every scroll is too slow there.
+   A scroll timeline slides it along with the screen instead, off the main thread.
+   Sliding down by the scroll, tilting, then sliding back up
+   is the same as tilting around a point in the middle of the screen */
+@media (hover: none) {
+  @supports (animation-timeline: scroll()) {
+    .three-d main {
+      transform-origin: var(--pivot-x, 50%) 50vh calc(var(--depth) * 40px);
+      animation: follow-scroll linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+
+@keyframes follow-scroll {
+  from {
+    transform: translateY(0) var(--tilt) translateY(0);
+  }
+  to {
+    transform: translateY(var(--scroll-max)) var(--tilt) translateY(calc(-1 * var(--scroll-max)));
+  }
 }
 
 .three-d :is(main, header, section, footer, .projects, .toys) {
@@ -488,6 +512,7 @@ h2 {
   /* keep the depth effects but don't swing the page around */
   .three-d main {
     transform: none;
+    animation: none;
   }
 
   #toggle-3d img {
