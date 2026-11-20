@@ -512,7 +512,7 @@ function drawFloor() {
   ctx.lineWidth = dpr;
 
   // a line z away sits near / z below the horizon. z = 1 is the bottom of the screen
-  const shift = ((scrollY / 96) * step) % step;
+  const shift = ((scrollY / 192) * step) % step;
   for (let z = step - shift; near / z > dpr; z += step) {
     if (near / z < near + dpr) ctx.fillRect(0, horizon + near / z - dpr / 2, w, dpr);
   }
