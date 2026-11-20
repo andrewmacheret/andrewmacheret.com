@@ -241,7 +241,6 @@ select.addEventListener('change', () => sortProjects(select.value));
 
 // type anywhere to rename the site, backspace to delete, escape to undo
 const ORIGINAL_NAME = 'andrew macheret';
-const MAX_NAME = 40;
 const cursor = document.querySelector('h1 .cursor');
 let name = ORIGINAL_NAME;
 
@@ -262,7 +261,7 @@ document.addEventListener('keydown', (e) => {
     name = ORIGINAL_NAME;
   } else if (e.key === 'Backspace') {
     name = name.slice(0, -1);
-  } else if (e.key.length === 1 && name.length < MAX_NAME) {
+  } else if (e.key.length === 1) {
     name += e.key;
   } else {
     return;
