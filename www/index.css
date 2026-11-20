@@ -209,11 +209,6 @@ h2 {
   color: var(--dim);
 }
 
-footer {
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-}
-
 /* hidden until the boot animation reaches them */
 .boot :is(.prompt, header > *, #sort, footer, .projects > li, .toys > li, #pun-text):not(.on) {
   visibility: hidden;
