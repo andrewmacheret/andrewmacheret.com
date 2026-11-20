@@ -281,7 +281,7 @@ const punReady = fetch('https://pun.andrewmacheret.com/', { headers: { Accept: '
   .catch(() => false);
 
 // on load, type out each command and then show its output
-// a click or scroll skips to the end
+// a click skips to the end
 let skip = false;
 const wait = (ms) => (skip ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
 const show = (...els) => els.forEach((el) => el.classList.add('on'));
@@ -348,9 +348,7 @@ async function boot() {
 }
 
 if (document.documentElement.classList.contains('boot')) {
-  for (const type of ['pointerdown', 'wheel']) {
-    addEventListener(type, () => { skip = true; }, { once: true, passive: true });
-  }
+  addEventListener('click', () => { skip = true; }, { once: true });
   boot();
 }
 </script>
