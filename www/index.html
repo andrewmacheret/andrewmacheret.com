@@ -36,10 +36,15 @@
 </header>
 
 <section>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ ls -t projects/ | sort --by=cool</p>
+  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ ls projects/ | sort --by=<select id="sort" aria-label="sort projects by">
+    <option value="cool">cool</option>
+    <option value="-cool">-cool</option>
+    <option value="date">date</option>
+    <option value="-date">-date</option>
+  </select></p>
 
   <ol class="projects">
-    <li>
+    <li data-date="2026-11-19">
       <h2>I-5 Express</h2>
       <p>Which way Seattle's I-5 express lanes are open, in your macOS menu bar or on an Android home screen widget.</p>
       <p class="meta"><span>swift · kotlin</span><span>2026</span></p>
@@ -49,7 +54,7 @@
         <a href="https://github.com/andrewmacheret/i5-android/releases/latest">download</a>
       </p>
     </li>
-    <li>
+    <li data-date="2015-11-25">
       <h2>Chess</h2>
       <p>Chess in the browser with any mix of human and AI players. Drag and drop, animated AI moves, backed by a Stockfish API.</p>
       <p class="meta"><span>react</span><span>2015</span></p>
@@ -59,7 +64,7 @@
         <a href="https://github.com/andrewmacheret/chess-server-lambda">src/api</a>
       </p>
     </li>
-    <li>
+    <li data-date="2015-11-25">
       <h2>Rubik's Cube</h2>
       <p>A mobile-friendly 3D Rubik's Cube with a built-in solver.</p>
       <p class="meta"><span>three.js</span><span>2015</span></p>
@@ -68,7 +73,7 @@
         <a href="https://github.com/andrewmacheret/cube">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2015-12-28">
       <h2>Braille Translator</h2>
       <p>A Chrome extension that translates web pages into braille.</p>
       <p class="meta"><span>chrome extension</span><span>2015</span></p>
@@ -77,7 +82,7 @@
         <a href="https://github.com/andrewmacheret/braille">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2014-08-03">
       <h2>Pun API</h2>
       <p>A random dad joke, on demand. Also powers my shell's message of the day.</p>
       <p class="meta"><span>python · lambda</span><span>2014</span></p>
@@ -86,7 +91,7 @@
         <a href="https://github.com/andrewmacheret/pun-server-lambda">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2026-11-03">
       <h2>Calendar Lead Time</h2>
       <p>Watches game schedules and adds a "leave now" event to Google Calendar before each one, timed with predicted traffic. Runs hourly on Google's servers.</p>
       <p class="meta"><span>google apps script</span><span>2026</span></p>
@@ -94,7 +99,7 @@
         <a href="https://github.com/andrewmacheret/google-cal-lead-time">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2015-11-26">
       <h2>No-Drone Zones</h2>
       <p>A map of the airports, military bases and national parks near you where drones aren't allowed.</p>
       <p class="meta"><span>leaflet · turf.js</span><span>2015</span></p>
@@ -103,7 +108,7 @@
         <a href="https://github.com/andrewmacheret/no-drone-zones">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2016-11-05">
       <h2>NHL Today</h2>
       <p>Today's NHL games, scores and standings at a glance.</p>
       <p class="meta"><span>javascript · lambda</span><span>2016</span></p>
@@ -113,7 +118,7 @@
         <a href="https://github.com/andrewmacheret/nhl-server-lambda">src/api</a>
       </p>
     </li>
-    <li>
+    <li data-date="2015-11-26">
       <h2>VTA Tracker</h2>
       <p>Where every VTA bus and train in the South Bay should be right now, worked out from the published timetable.</p>
       <p class="meta"><span>python · lambda · leaflet</span><span>2015</span></p>
@@ -122,7 +127,7 @@
         <a href="https://github.com/andrewmacheret/vta-tracker-lambda">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2016-08-09">
       <h2>Monty Hall</h2>
       <p>Play the Monty Hall problem and watch the win rates converge across everyone who's played.</p>
       <p class="meta"><span>react · java · dynamodb</span><span>2016</span></p>
@@ -132,7 +137,7 @@
         <a href="https://github.com/andrewmacheret/montyhall-server-lambda">src/api</a>
       </p>
     </li>
-    <li>
+    <li data-date="2016-01-29">
       <h2>Clicker Solvers</h2>
       <p>Bots that play idle clicker games so I don't have to.</p>
       <p class="meta"><span>java · objective-c</span><span>2016–2019</span></p>
@@ -141,7 +146,7 @@
         <a href="https://github.com/andrewmacheret/clicker">src/clicker</a>
       </p>
     </li>
-    <li>
+    <li data-date="2017-11-30">
       <h2>Puzzle Solvers</h2>
       <p>Give it a photo of a sudoku and it reads the grid and solves it. Plus solvers for train shunting puzzles and "Honey Bunch" word puzzles.</p>
       <p class="meta"><span>python · javascript</span><span>2017–2023</span></p>
@@ -151,7 +156,7 @@
         <a href="https://github.com/andrewmacheret/thebees">src/bees</a>
       </p>
     </li>
-    <li>
+    <li data-date="2016-09-09">
       <h2>ASCII Cow</h2>
       <p>Give it an image and a size, get back colorful ASCII art spoken by a cow.</p>
       <p class="meta"><span>shell</span><span>2016</span></p>
@@ -159,7 +164,7 @@
         <a href="https://github.com/andrewmacheret/ascii-cow">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2017-07-29">
       <h2>Snake</h2>
       <p>Snake on an Arduino, and Snake in the terminal.</p>
       <p class="meta"><span>c++ · node.js</span><span>2017–2021</span></p>
@@ -168,7 +173,7 @@
         <a href="https://github.com/andrewmacheret/snake">src/terminal</a>
       </p>
     </li>
-    <li>
+    <li data-date="2017-07-25">
       <h2>Genetic</h2>
       <p>Genetic programming where the genes are Brainfuck programs, evolved across a cluster of Node.js workers.</p>
       <p class="meta"><span>node.js</span><span>2017</span></p>
@@ -176,7 +181,7 @@
         <a href="https://github.com/andrewmacheret/genetic">src</a>
       </p>
     </li>
-    <li>
+    <li data-date="2018-12-22">
       <h2>Advent of Code</h2>
       <p>My solutions, year after year.</p>
       <p class="meta"><span>python · jq</span><span>2018–</span></p>
@@ -199,7 +204,7 @@
 </section>
 
 <section id="pun" hidden>
-  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ curl pun.andrewmacheret.com</p>
+  <p class="prompt"><span class="user">guest@andrewmacheret</span>:<span class="path">~</span>$ curl -H "Accept: text/plain" https://pun.andrewmacheret.com</p>
   <p id="pun-text"></p>
 </section>
 
@@ -208,9 +213,40 @@
 </footer>
 
 <script>
-fetch('https://pun.andrewmacheret.com/')
-  .then((res) => res.json())
-  .then(({ pun }) => {
+const list = document.querySelector('.projects');
+const projects = [...list.children];
+projects.forEach((li, i) => { li.dataset.cool = i; });
+
+// "cool" and "date" put the coolest / newest first. A leading "-" flips it.
+function sortProjects(by) {
+  const flip = by.startsWith('-') ? -1 : 1;
+  const key = by.replace('-', '');
+  const sorted = [...projects].sort((a, b) => {
+    const diff = key === 'date'
+      ? b.dataset.date.localeCompare(a.dataset.date)
+      : a.dataset.cool - b.dataset.cool;
+    return flip * (diff || a.dataset.cool - b.dataset.cool);
+  });
+  list.append(...sorted);
+}
+
+const select = document.getElementById('sort');
+const params = new URLSearchParams(location.search);
+if ([...select.options].some((o) => o.value === params.get('sort'))) {
+  select.value = params.get('sort');
+  sortProjects(select.value);
+}
+select.addEventListener('change', () => {
+  sortProjects(select.value);
+  const url = new URL(location);
+  if (select.value === 'cool') url.searchParams.delete('sort');
+  else url.searchParams.set('sort', select.value);
+  history.replaceState(null, '', url);
+});
+
+fetch('https://pun.andrewmacheret.com/', { headers: { Accept: 'text/plain' } })
+  .then((res) => (res.ok ? res.text() : Promise.reject()))
+  .then((pun) => {
     document.getElementById('pun-text').textContent = pun.trim();
     document.getElementById('pun').hidden = false;
   })
