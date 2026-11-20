@@ -482,12 +482,8 @@ function trackScroll() {
   // set on main, not the root, so scrolling doesn't restyle the whole page
   main.style.setProperty('--pivot-x', `${button.x - main.offsetLeft}px`);
   main.style.setProperty('--pivot-y', `${y - main.offsetTop}px`);
-  main.style.setProperty('--scroll-max', `${root.scrollHeight - innerHeight}px`);
   drawFloor();
 }
-
-// on phones the css scroll timeline follows the scroll, so skip the work here
-const cssFollowsScroll = () => noMouse.matches && CSS.supports('animation-timeline: scroll()');
 
 // the grid floor rolls toward you as you scroll. It's drawn on a canvas
 // because thin far-off lines in a css 3d grid flicker
@@ -557,15 +553,11 @@ toggle3d.addEventListener('click', () => {
 for (const type of ['scroll', 'resize']) {
   addEventListener(type, () => {
     if (!root.classList.contains('three-d')) return;
-    if (type === 'scroll' && cssFollowsScroll()) return;
+    // phones use a fixed tilt, so scrolling has nothing to update
+    if (type === 'scroll' && noMouse.matches) return;
     trackScroll();
   }, { passive: true });
 }
-
-// the page gets taller when the pun shows up
-new ResizeObserver(() => {
-  if (root.classList.contains('three-d')) trackScroll();
-}).observe(document.querySelector('main'));
 
 // touches don't steer the tilt. Lifting a finger would snap it back to flat
 addEventListener('pointermove', (e) => {
