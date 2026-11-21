@@ -165,6 +165,9 @@ let depth = 0;
 // where you look from. 0.5, 0.5 is a little below and to the right
 const eye = { x: 0.5, y: 0.5 };
 const eyeGoal = { x: 0.5, y: 0.5 };
+// the sun slides with the mouse. 0.5 is the middle
+let sun = 0.5;
+let sunGoal = 0.5;
 let frame = 0;
 
 function render3d() {
@@ -174,16 +177,20 @@ function render3d() {
   depth += (goal - depth) * ease;
   eye.x += (eyeGoal.x - eye.x) * ease;
   eye.y += (eyeGoal.y - eye.y) * ease;
+  sun += (sunGoal - sun) * ease;
   const settled = Math.max(
     Math.abs(goal - depth), Math.abs(eyeGoal.x - eye.x), Math.abs(eyeGoal.y - eye.y),
+    Math.abs(sunGoal - sun),
   ) < 0.001;
   if (settled) {
     depth = goal;
     Object.assign(eye, eyeGoal);
+    sun = sunGoal;
   }
   root.style.setProperty('--depth', depth);
   root.style.setProperty('--eye-x', eye.x);
   root.style.setProperty('--eye-y', eye.y);
+  root.style.setProperty('--sun-x', sun);
   gaps.forEach((el) => el.setAttribute('dx', el.dataset.gap * depth));
   if (!on3d && depth === 0) root.classList.remove('three-d');
   if (!settled) frame = requestAnimationFrame(render3d);
@@ -269,15 +276,14 @@ toggle3d.addEventListener('click', () => {
   if (on3d) {
     trackScroll();
     root.classList.add('three-d');
-    // phones have no mouse to follow, so lean a bit in a random direction instead
-    if (noMouse.matches) {
-      const angle = Math.random() * 2 * Math.PI;
-      const lean = 0.25 + Math.random() * 0.15;
-      eyeGoal.x = 0.5 + lean * Math.cos(angle);
-      eyeGoal.y = 0.5 + lean * Math.sin(angle);
-    }
+    // lean a bit in a random direction and stay there
+    const angle = Math.random() * 2 * Math.PI;
+    const lean = 0.25 + Math.random() * 0.15;
+    eyeGoal.x = 0.5 + lean * Math.cos(angle);
+    eyeGoal.y = 0.5 + lean * Math.sin(angle);
   } else {
     Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
+    sunGoal = 0.5;
   }
   update3d();
 });
@@ -291,17 +297,16 @@ for (const type of ['scroll', 'resize']) {
   }, { passive: true });
 }
 
-// touches don't steer the tilt. Lifting a finger would snap it back to flat
+// the mouse moves the sun. Touches don't, since lifting a finger would snap it back
 addEventListener('pointermove', (e) => {
   if (!on3d || reduceMotion.matches || e.pointerType === 'touch') return;
-  eyeGoal.x = 0.5 + 0.7 * ((e.clientX / innerWidth) * 2 - 1);
-  eyeGoal.y = 0.5 + 0.7 * ((e.clientY / innerHeight) * 2 - 1);
+  sunGoal = 0.5 + 0.7 * ((e.clientX / innerWidth) * 2 - 1);
   update3d();
 });
 
 root.addEventListener('pointerleave', (e) => {
   if (e.pointerType === 'touch') return;
-  Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
+  sunGoal = 0.5;
   update3d();
 });
 
