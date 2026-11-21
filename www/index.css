@@ -264,26 +264,6 @@ h2 {
   border-radius: 3px;
 }
 
-.toys {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.toys li {
-  padding: 4px 0;
-}
-
-.toys a:first-child {
-  display: inline-block;
-  min-width: 17ch;
-}
-
-.toys .src {
-  font-size: 0.85rem;
-  color: var(--dim);
-}
-
 .filters {
   position: absolute;
   width: 0;
@@ -311,7 +291,7 @@ h2 {
   transform: var(--tilt);
 }
 
-.three-d :is(main, header, section, footer, .projects, .toys) {
+.three-d :is(main, header, section, footer, .projects) {
   transform-style: preserve-3d;
 }
 
@@ -339,7 +319,7 @@ h2 {
   filter: url(#pop-mid);
 }
 
-.three-d :is(.projects, .toys) > li {
+.three-d .projects > li {
   transform: translateZ(calc(var(--depth) * (16px + var(--lift))));
   filter: url(#pop-far);
   transition: --lift 0.3s ease-out;
@@ -353,7 +333,7 @@ h2 {
 /* phones redraw svg filters slowly while scrolling,
    so fake the red/cyan split with plain text shadows there */
 @media (hover: none) {
-  .three-d :is(h1, header > .dim, nav, #pun-text, .projects > li, .toys > li) {
+  .three-d :is(h1, header > .dim, nav, #pun-text, .projects > li) {
     filter: none;
   }
 
@@ -370,7 +350,7 @@ h2 {
       calc(var(--depth) * -1.5px) 0 rgb(0 220 255 / 0.35);
   }
 
-  .three-d :is(.projects, .toys) > li {
+  .three-d .projects > li {
     text-shadow:
       calc(var(--depth) * 1px) 0 rgb(255 40 40 / 0.5),
       calc(var(--depth) * -1px) 0 rgb(0 220 255 / 0.5);
@@ -394,7 +374,7 @@ h2 {
     transform: var(--tilt) translateZ(calc(var(--depth) * 40px));
   }
 
-  .three-d :is(.projects, .toys) > li {
+  .three-d .projects > li {
     transform: var(--tilt) translateZ(calc(var(--depth) * (16px + var(--lift))));
   }
 }
@@ -477,11 +457,11 @@ h2 {
   }
 }
 /* hidden until the boot animation reaches them */
-.boot :is(.prompt, header > *, #sort, footer, .projects > li, .toys > li, #pun-text):not(.on) {
+.boot :is(.prompt, header > *, #sort, footer, .projects > li, #pun-text):not(.on) {
   visibility: hidden;
 }
 
-.boot :is(.projects > li, .toys > li).on {
+.boot .projects > li.on {
   animation: appear 0.3s ease-out;
 }
 
@@ -503,12 +483,7 @@ h2 {
 
   .projects li {
     padding-left: 36px;
-  }
-
-  .toys a:first-child {
-    display: block;
-  }
-}
+  }}
 
 @media (prefers-reduced-motion: reduce) {
   .cursor {
@@ -531,7 +506,7 @@ h2 {
   }
 
   /* typing still plays, but list items fade in without sliding */
-  .boot :is(.projects > li, .toys > li).on {
+  .boot .projects > li.on {
     animation-name: fade-in;
   }
 }
