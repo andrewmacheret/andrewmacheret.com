@@ -140,49 +140,46 @@ summary {
   padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
 }
 
-/* "andrewmacheret.com / Chess" above the title, with the favicon in front */
-.breadcrumb ol {
+/* the home page logo in front of the title, like "[a_] / Chess". It lines up with the first line so long titles can wrap */
+.title-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 0.75rem;
-  padding: 0;
-  list-style: none;
-  font: 0.75rem/1.25rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.overlay .title-row {
+  font-size: 18px;
+}
+
+.title-row h1 {
+  line-height: 1.2;
+}
+
+.title-row .home {
+  display: flex;
+  flex: none;
+  margin-top: 0.1em;
+  border-radius: 4px;
+  transition: transform 0.15s;
+}
+
+.title-row .home:hover {
+  transform: translateY(-1px);
+}
+
+/* a faint ring so the dark logo still shows on the dark background */
+.title-row .home img {
+  display: block;
+  width: 1em;
+  height: 1em;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--glass-border);
+}
+
+.title-row .slash {
   color: var(--muted);
-}
-
-.breadcrumb li + li::before {
-  content: '/';
-  margin-right: 0.4rem;
-  opacity: 0.6;
-}
-
-.breadcrumb a:link,
-.breadcrumb a:visited {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--muted);
-}
-
-.breadcrumb a:hover {
-  color: var(--bright);
-}
-
-.breadcrumb img {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-}
-
-.breadcrumb [aria-current] {
-  color: var(--accent);
-}
-
-.overlay .breadcrumb ol {
-  margin-bottom: 8px;
+  line-height: 1.2;
 }
 
 /* title and subtitle on the left, an optional pill or picker on the right */
