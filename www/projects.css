@@ -1,0 +1,497 @@
+/*
+  Shared look for the project pages (cube, Monty Hall, NHL and the rest).
+  Pages load it from https://andrewmacheret.com/projects.css, before their own CSS,
+  so a page can override anything here.
+
+  Each color is written as light-dark(light, dark). Pages follow the system theme.
+  A dark-only page sets `:root { color-scheme: dark; }` in its own CSS.
+*/
+
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --bg: light-dark(#e2e8f0, #0b1120);
+  --bg-gradient: radial-gradient(
+    120% 70% at 50% 0%,
+    light-dark(#ffffff, #3b4a66) 0%,
+    light-dark(#eef2f7, #1e293b) 45%,
+    light-dark(#dbe3ee, #0b1120) 100%
+  );
+  --text: light-dark(#334155, #e2e8f0);
+  --bright: light-dark(#0f172a, #f1f5f9);
+  --muted: light-dark(#64748b, #94a3b8);
+
+  /* see-through cards on the gradient */
+  --glass: light-dark(rgb(255 255 255 / 0.65), rgb(255 255 255 / 0.05));
+  --glass-border: light-dark(rgb(15 23 42 / 0.08), rgb(255 255 255 / 0.1));
+  /* floating panels on top of a map or canvas */
+  --panel: light-dark(rgb(255 255 255 / 0.88), rgb(15 23 42 / 0.82));
+  --shadow: 0 20px 50px light-dark(rgb(15 23 42 / 0.1), rgb(0 0 0 / 0.35)),
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.06));
+
+  /* buttons, selects and other inputs */
+  --control: light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.08));
+  --control-border: light-dark(rgb(15 23 42 / 0.12), rgb(255 255 255 / 0.14));
+  --control-hover: light-dark(#ffffff, rgb(255 255 255 / 0.15));
+  --control-shadow: 0 8px 24px light-dark(rgb(15 23 42 / 0.08), rgb(0 0 0 / 0.3)),
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.1));
+
+  /* the purple used for main buttons, toggles and progress bars */
+  --gradient: linear-gradient(135deg, #6366f1, #a855f7);
+  --gradient-hover: linear-gradient(135deg, #7376f4, #b46af8);
+  --gradient-shadow: 0 8px 24px rgb(99 102 241 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.25);
+  --accent: light-dark(#7c3aed, #8b5cf6);
+
+  --link: light-dark(#6d28d9, #c4b5fd);
+  --link-hover: light-dark(#7c3aed, #ddd6fe);
+  --focus: light-dark(#6366f1, #a5b4fc);
+
+  /* green for wins and done, amber for losses and warnings, red for errors and live */
+  --good: light-dark(#15803d, #86efac);
+  --good-bg: light-dark(rgb(22 163 74 / 0.12), rgb(74 222 128 / 0.15));
+  --good-border: light-dark(rgb(22 163 74 / 0.4), rgb(74 222 128 / 0.45));
+  --warn: light-dark(#b45309, #fcd34d);
+  --warn-bg: light-dark(rgb(217 119 6 / 0.12), rgb(251 191 36 / 0.15));
+  --warn-border: light-dark(rgb(217 119 6 / 0.4), rgb(251 191 36 / 0.4));
+  --bad: light-dark(#b91c1c, #fca5a5);
+  --bad-bg: light-dark(rgb(220 38 38 / 0.1), rgb(248 113 113 / 0.15));
+  --bad-border: light-dark(rgb(220 38 38 / 0.35), rgb(248 113 113 / 0.45));
+
+  color: var(--text);
+  background: var(--bg);
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg-gradient) no-repeat;
+  background-color: var(--bg);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a:link,
+a:visited {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+summary {
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* page layout: a centered column with a header, cards and a footer */
+
+.app {
+  box-sizing: border-box;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
+}
+
+/* title and subtitle on the left, an optional pill or picker on the right */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* a small pill stays beside the title on phones instead of wrapping below it */
+.header:has(> .pill) {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
+.header h1 {
+  color: var(--bright);
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.header p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-wrap: pretty;
+}
+
+/* More projects · Source, dimmed until you point at it */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+}
+
+.footer:hover,
+.footer:focus-within {
+  opacity: 0.8;
+}
+
+.footer a:link,
+.footer a:visited {
+  color: inherit;
+}
+
+/* glass cards */
+
+.stage {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
+/* smaller cards, like the stats under a game */
+.card {
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* a panel floating over a full-screen map or canvas. Each page places it */
+.overlay {
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.overlay h1 {
+  color: var(--bright);
+  font-size: 18px;
+}
+
+/* plain text here so it wraps like a sentence in the narrow panel */
+.overlay .footer {
+  display: block;
+  margin-top: 12px;
+}
+
+/* a red warning box, like when the data couldn't load */
+.alert {
+  position: relative;
+  margin-top: 10px;
+  padding: 10px 12px 10px 38px;
+  border: 1px solid light-dark(rgb(220 38 38 / 0.6), rgb(248 113 113 / 0.8));
+  border-radius: 10px;
+  background: light-dark(rgb(220 38 38 / 0.15), rgb(220 38 38 / 0.55));
+  color: light-dark(#7f1d1d, #fff1f2);
+  font-weight: 600;
+}
+
+.alert::before {
+  content: '\26A0';
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  font-size: 18px;
+}
+
+/* small uppercase heading above a group of cards or chips */
+.section-head {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* pill and round buttons */
+
+.control,
+a.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  background: var(--control);
+  box-shadow: var(--control-shadow);
+  color: var(--bright);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.15s, opacity 0.15s;
+}
+
+.control:hover:not(:disabled),
+a.control:hover {
+  background-color: var(--control-hover);
+  color: var(--bright);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.control:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.control:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.control.small {
+  padding: 0.5rem 0.95rem;
+  font-size: 0.85rem;
+}
+
+/* icon only. The page sets the size */
+.control.round {
+  padding: 0;
+}
+
+/* the main action, and toggles that are turned on */
+.control.primary,
+.control[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--gradient);
+  box-shadow: var(--gradient-shadow);
+  color: #fff;
+}
+
+.control.primary:hover:not(:disabled),
+a.control.primary:hover,
+.control[aria-pressed='true']:hover:not(:disabled) {
+  background: var(--gradient-hover);
+  color: #fff;
+}
+
+.control svg {
+  flex-shrink: 0;
+}
+
+/* pill-shaped dropdown */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  max-width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 1.1rem;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  /* a small down arrow, since appearance: none hides the browser's */
+  background: var(--control) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%2394a3b8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 1rem center;
+  box-shadow: var(--control-shadow);
+  color: var(--bright);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.select:hover {
+  background-color: var(--control-hover);
+}
+
+.select option {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* a glass pill for a slider */
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.slider input {
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.slider output,
+.slider .slider-value {
+  color: var(--bright);
+  font-variant-numeric: tabular-nums;
+}
+
+/* a glass pill for a number, like "20 moves to solve" */
+.pill {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.pill strong {
+  color: var(--bright);
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pill.good {
+  border-color: var(--good-border);
+  background: var(--good-bg);
+  color: var(--good);
+  font-weight: 600;
+}
+
+/* a small status label, like "Live" or "Win" */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  background: var(--control);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.chip.good {
+  border-color: var(--good-border);
+  background: var(--good-bg);
+  color: var(--good);
+}
+
+.chip.warn {
+  border-color: var(--warn-border);
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.chip.bad {
+  border-color: var(--bad-border);
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+
+/* a little number badge next to a heading */
+.count {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 1px 7px;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  background: var(--control);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 640px) {
+  .stage {
+    padding: 0.75rem;
+    border-radius: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer,
+  .control,
+  .pill {
+    transition: none;
+  }
+}
