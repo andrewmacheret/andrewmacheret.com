@@ -68,9 +68,9 @@
   --bad-bg: light-dark(rgb(220 38 38 / 0.1), rgb(248 113 113 / 0.15));
   --bad-border: light-dark(rgb(220 38 38 / 0.35), rgb(248 113 113 / 0.45));
 
-  /* the chess board, also the sprite sandbox floor. Same in light and dark */
-  --square-light: #e4ede1;
-  --square-dark: #5a9c63;
+  /* the chess board, also the sprite sandbox floor. Dimmer in dark mode so it doesn't glare */
+  --square-light: light-dark(#e4ede1, #a9b8a4);
+  --square-dark: light-dark(#5a9c63, #4f7a56);
   --board-border: light-dark(#1f2622, #3a423d);
   /* a picked square or character */
   --selected: rgb(255 255 51 / 0.45);
