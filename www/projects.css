@@ -140,6 +140,51 @@ summary {
   padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
 }
 
+/* "andrewmacheret.com / Chess" above the title, with the favicon in front */
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  font: 0.75rem/1.25rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--muted);
+}
+
+.breadcrumb li + li::before {
+  content: '/';
+  margin-right: 0.4rem;
+  opacity: 0.6;
+}
+
+.breadcrumb a:link,
+.breadcrumb a:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+.breadcrumb a:hover {
+  color: var(--bright);
+}
+
+.breadcrumb img {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.breadcrumb [aria-current] {
+  color: var(--accent);
+}
+
+.overlay .breadcrumb ol {
+  margin-bottom: 8px;
+}
+
 /* title and subtitle on the left, an optional pill or picker on the right */
 .header {
   display: flex;
