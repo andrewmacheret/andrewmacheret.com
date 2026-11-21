@@ -160,20 +160,20 @@ summary {
   justify-content: center;
   gap: 0.6rem;
   margin-top: 2.5rem;
-  color: var(--muted);
+  /* dimmed with color, not opacity, so a hovered link can still go bright */
+  color: color-mix(in srgb, var(--muted) 35%, transparent);
   font-size: 0.7rem;
-  opacity: 0.35;
-  transition: opacity 0.2s;
-}
-
-.footer:hover,
-.footer:focus-within {
-  opacity: 0.8;
 }
 
 .footer a:link,
 .footer a:visited {
   color: inherit;
+  transition: color 0.2s;
+}
+
+.footer a:hover,
+.footer a:focus-visible {
+  color: var(--text);
 }
 
 /* glass cards */
@@ -489,7 +489,7 @@ a.control.primary:hover,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .footer,
+  .footer a,
   .control,
   .pill {
     transition: none;
