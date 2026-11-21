@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <rect width="16" height="16" rx="3" fill="#0b0d0c"/>
+  <!-- drawn on the 16px grid so it stays sharp in a browser tab -->
+  <g shape-rendering="crispEdges">
+    <path fill="#fff" d="M3 4h5v1H3zM8 5h1v5H8zM4 7h4v1H4zM3 8h1v2H3zM4 10h4v1H4z"/>
+    <rect x="10" y="10" width="4" height="2" fill="#7ee787"/>
+  </g>
+</svg>
