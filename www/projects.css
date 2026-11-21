@@ -68,6 +68,13 @@
   --bad-bg: light-dark(rgb(220 38 38 / 0.1), rgb(248 113 113 / 0.15));
   --bad-border: light-dark(rgb(220 38 38 / 0.35), rgb(248 113 113 / 0.45));
 
+  /* the chess board, also the sprite sandbox floor. Same in light and dark */
+  --square-light: #e4ede1;
+  --square-dark: #5a9c63;
+  --board-border: light-dark(#1f2622, #3a423d);
+  /* a picked square or character */
+  --selected: rgb(255 255 51 / 0.45);
+
   color: var(--text);
   background: var(--bg);
 }
