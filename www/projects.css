@@ -74,6 +74,8 @@
   --board-border: light-dark(#1f2622, #3a423d);
   /* a picked square or character */
   --selected: rgb(255 255 51 / 0.45);
+  /* the outline on the last move, and on the square a dragged piece is over */
+  --move-outline: light-dark(#0b3d1a, #7ee787);
 
   color: var(--text);
   background: var(--bg);
