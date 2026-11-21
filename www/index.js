@@ -276,11 +276,8 @@ toggle3d.addEventListener('click', () => {
   if (on3d) {
     trackScroll();
     root.classList.add('three-d');
-    // lean a bit in a random direction and stay there
-    const angle = Math.random() * 2 * Math.PI;
-    const lean = 0.25 + Math.random() * 0.15;
-    eyeGoal.x = 0.5 + lean * Math.cos(angle);
-    eyeGoal.y = 0.5 + lean * Math.sin(angle);
+    // always lean the same way, like looking from a bit below and to the right
+    Object.assign(eyeGoal, { x: 0.8, y: 0.7 });
   } else {
     Object.assign(eyeGoal, { x: 0.5, y: 0.5 });
     sunGoal = 0.5;
