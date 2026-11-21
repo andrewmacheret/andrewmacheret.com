@@ -257,11 +257,14 @@ h2 {
   color: var(--dim);
 }
 
+/* a soft green fog behind the main link. The blurred shadow spreads it out
+   without making the link bigger to click */
 .links a.primary {
-  background: rgba(126, 231, 135, 0.1);
+  background: radial-gradient(closest-side, rgb(126 231 135 / 0.16), rgb(126 231 135 / 0.09));
   padding: 0 4px;
   margin: 0 -4px;
-  border-radius: 3px;
+  border-radius: 50%;
+  box-shadow: 0 0 16px 8px rgb(126 231 135 / 0.09);
 }
 
 .filters {
