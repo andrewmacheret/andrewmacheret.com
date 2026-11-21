@@ -274,7 +274,7 @@ h2 {
 }
 
 /* 3d mode. The script moves --depth from 0 (flat) to 1 (full 3d),
-   and moves --eye-x and --eye-y with the mouse */
+   picks a fixed lean for --eye-x and --eye-y, and moves --sun-x with the mouse */
 @property --lift {
   syntax: "<length>";
   inherits: false;
@@ -410,7 +410,7 @@ h2 {
   width: min(50vmin, 380px);
   aspect-ratio: 1;
   border-radius: 50%;
-  translate: calc(-50% - (var(--eye-x) - 0.5) * 30px) calc((1 - var(--depth)) * 40vh);
+  translate: calc(-50% - (var(--sun-x, 0.5) - 0.5) * 30px) calc((1 - var(--depth)) * 40vh);
   opacity: 0.4;
   background: linear-gradient(#ffd319, #ff901f 35%, #ff2975 70%, #8c1eff);
   mask-image: linear-gradient(#000 38%, transparent 38% 40%, #000 40% 47%, transparent 47% 50%,
