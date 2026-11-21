@@ -497,6 +497,52 @@ a.control.primary:hover,
   }
 }
 
+/*
+  Leaflet maps in dark mode. OpenStreetMap has no dark tiles, so flip the colors
+  and turn the hue back around so water stays blue and parks stay green.
+  The extra class names make these beat leaflet.css, which loads after this file.
+*/
+@media (prefers-color-scheme: dark) {
+  html .leaflet-container {
+    background: var(--bg);
+  }
+
+  .leaflet-container .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+  }
+
+  .leaflet-container .leaflet-bar a {
+    border-bottom-color: var(--control-border);
+    background-color: var(--surface);
+    color: var(--text);
+  }
+
+  .leaflet-container .leaflet-bar a:hover,
+  .leaflet-container .leaflet-bar a:focus {
+    background-color: color-mix(in srgb, var(--text) 10%, var(--surface));
+  }
+
+  .leaflet-container .leaflet-bar a.leaflet-disabled {
+    background-color: var(--surface);
+    color: var(--muted);
+  }
+
+  .leaflet-container .leaflet-control-container .leaflet-control-attribution {
+    background: var(--panel);
+    color: var(--muted);
+  }
+
+  .leaflet-container .leaflet-control-attribution a {
+    color: var(--link);
+  }
+
+  .leaflet-container .leaflet-popup-content-wrapper,
+  .leaflet-container .leaflet-popup-tip {
+    background: var(--surface);
+    color: var(--text);
+  }
+}
+
 @media (max-width: 640px) {
   .stage {
     padding: 0.75rem;
