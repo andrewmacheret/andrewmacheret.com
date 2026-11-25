@@ -12,7 +12,7 @@ Plain static files in `www/`. Pushing to `master` syncs them to the `andrewmache
 
 ## Health checks
 
-`www/healthcheck.js` runs the health check pages for this site and every project. A project's `www/healthcheck/index.html` loads it from `https://andrewmacheret.com/healthcheck.js` and lists what to check. The top of the file explains the options. This site's own page is [`/healthcheck/`](https://andrewmacheret.com/healthcheck/). It checks the home page and everything it loads, the resume, the sitemap, the shared project styles and Google Analytics.
+`www/healthcheck.js` runs the health check pages for this site and every project. A project's health check page loads it from this site and lists what to check. The top of the file explains the options. This site's own page checks the home page and everything it loads, the resume, the sitemap, the shared project styles and Google Analytics.
 
 [andrewmacheret/canary](https://github.com/andrewmacheret/canary) starts each project's Canary workflow once a day, which opens its health check page and fails if anything is broken. Health check pages skip `analytics.js` so the canary doesn't count as a visit, and use `noindex` so search engines skip them.
 
