@@ -489,10 +489,6 @@ h2 {
   }}
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor {
-    animation: none;
-  }
-
   /* keep the depth effects but don't swing the page around */
   .three-d main {
     transform: none;
