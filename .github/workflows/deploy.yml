@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths-ignore:
       - '**.md'
+      - '.github/workflows/canary.yml'
   workflow_dispatch:
   # picks up resume edits from Google Docs once a day
   schedule:

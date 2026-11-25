@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<!-- No analytics.js here, so the daily canary doesn't count as a visit -->
+<title>andrewmacheret.com health check</title>
+<style>body { font-family: system-ui, sans-serif; margin: 2rem; } li { margin: 0.25rem 0; }</style>
+<script src="/healthcheck.js"></script>
+</head>
+<body>
+<h1>andrewmacheret.com health check</h1>
+<script>
+healthcheck([
+  { name: 'Home page', url: '/', assets: true, contains: 'andrew macheret' },
+  { name: 'Resume', url: '/resume.pdf' },
+  { name: 'Sitemap', url: '/sitemap.xml', contains: '<urlset' },
+  { name: 'Shared project styles', url: '/projects.css' },
+  { name: 'Google Analytics', url: 'https://www.googletagmanager.com/gtag/js?id=G-3ETGZ5HGPF' }
+]);
+</script>
+</body>
+</html>
