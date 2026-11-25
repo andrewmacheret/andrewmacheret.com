@@ -16,6 +16,8 @@
 //   healthcheck: the URL is another health check, like a Lambda's, and it has to say "ok"
 //   image: load it as an image, for servers that don't let other sites fetch from them
 //   maxAgeHours: the file has to have been updated within this many hours
+//   json: a function that gets the parsed JSON. It throws an Error to fail the check,
+//     and any text it returns is added to the detail
 // The daily canary (github.com/andrewmacheret/canary) opens the page and reads window.healthcheckResult.
 (function () {
   const timeoutMs = 15000;
@@ -53,7 +55,7 @@
 
     const response = await get(url);
     if (!response) {
-      if (check.contains || check.healthcheck || check.assets || check.maxAgeHours) {
+      if (check.contains || check.healthcheck || check.assets || check.maxAgeHours || check.json) {
         throw new Error("it's up, but it doesn't let this site read it (CORS)");
       }
       return { detail: "up (CORS hides the status)" };
@@ -77,6 +79,14 @@
       const hours = Math.round((Date.now() - new Date(modified)) / 3600000);
       if (hours > check.maxAgeHours) throw new Error(`last updated ${hours} hours ago`);
       details.push(`updated ${hours} hours ago`);
+    }
+    if (check.json) {
+      const body = await response.json().catch(() => {
+        throw new Error('not valid JSON');
+      });
+      const more = check.json(body);
+      if (more) details.push(more);
+      return { detail: details.join(', ') };
     }
     const text = check.contains || check.assets || check.keepText ? await response.text() : null;
     if (check.contains && !text.includes(check.contains)) throw new Error(`doesn't include "${check.contains}"`);
