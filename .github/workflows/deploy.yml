@@ -6,10 +6,8 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/workflows/canary.yml'
+  # run by hand to publish resume edits from Google Docs
   workflow_dispatch:
-  # picks up resume edits from Google Docs once a day
-  schedule:
-    - cron: '0 14 * * *'
 
 permissions:
   contents: read

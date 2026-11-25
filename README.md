@@ -18,6 +18,6 @@ Plain static files in `www/`. Pushing to `master` syncs them to the `andrewmache
 
 ## Resume
 
-`resume.pdf` isn't in git. Each deploy downloads it from the [Google Doc](https://docs.google.com/document/d/1Kyydz3vJ1sYyvfwZWNPxarSqZHmeRYpszG_mF5fqH5o/edit), and a daily scheduled run picks up edits. To publish right away, click "Run workflow" on the [Deploy workflow](https://github.com/andrewmacheret/andrewmacheret.com/actions/workflows/deploy.yml).
+`resume.pdf` isn't in git. Each deploy downloads it from the [Google Doc](https://docs.google.com/document/d/1Kyydz3vJ1sYyvfwZWNPxarSqZHmeRYpszG_mF5fqH5o/edit). To publish edits, click "Run workflow" on the [Deploy workflow](https://github.com/andrewmacheret/andrewmacheret.com/actions/workflows/deploy.yml).
 
 `/resume` (and anything else starting with `resume` that doesn't exist) redirects to `/resume.pdf`. That's a routing rule in the bucket's static website settings, not a file here.
