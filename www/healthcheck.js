@@ -10,6 +10,8 @@
 //   </script>
 // Options for a check:
 //   assets: also check every script and stylesheet the page loads
+//   find: with assets, patterns for files the page's scripts load later, like a hashed .wasm file.
+//     Each one has to show up in a script, and the file it names has to load.
 //   contains: text the response has to include
 //   healthcheck: the URL is another health check, like a Lambda's, and it has to say "ok"
 //   image: load it as an image, for servers that don't let other sites fetch from them
@@ -76,7 +78,7 @@
       if (hours > check.maxAgeHours) throw new Error(`last updated ${hours} hours ago`);
       details.push(`updated ${hours} hours ago`);
     }
-    const text = check.contains || check.assets ? await response.text() : null;
+    const text = check.contains || check.assets || check.keepText ? await response.text() : null;
     if (check.contains && !text.includes(check.contains)) throw new Error(`doesn't include "${check.contains}"`);
     return { detail: details.join(', '), text };
   }
@@ -92,12 +94,28 @@
     }));
   }
 
+  const shortUrl = (url) => url.replace(/^https:\/\//, '');
+
   // Every script and stylesheet a page loads, so a half-finished deploy shows up
-  function assetChecks(page) {
+  function assetChecks(page, keepText) {
     const doc = new DOMParser().parseFromString(page.text, 'text/html');
     const urls = [...doc.querySelectorAll('script[src], link[rel~="stylesheet"][href]')]
       .map((el) => new URL(el.getAttribute('src') || el.getAttribute('href'), page.url).href);
-    return [...new Set(urls)].map((url) => ({ name: `${page.name}: ${url.replace(/^https:\/\//, '')}`, url }));
+    return [...new Set(urls)].map((url) => ({ name: `${page.name}: ${shortUrl(url)}`, url, keepText }));
+  }
+
+  // Files named inside the page's scripts, found by the check's find patterns
+  function foundChecks(page, patterns, assets) {
+    return patterns.map((pattern) => {
+      for (const asset of assets) {
+        const match = asset.text && asset.text.match(new RegExp(pattern));
+        if (match) {
+          const url = new URL(match[0], asset.url).href;
+          return { name: `${page.name}: ${shortUrl(url)}`, url };
+        }
+      }
+      return { name: `${page.name}: ${pattern}`, missing: true };
+    });
   }
 
   function render(results, ok) {
@@ -115,8 +133,16 @@
 
   window.healthcheck = async (checks) => {
     const results = await runAll(checks);
-    const pages = results.filter((r, i) => checks[i].assets && r.text);
-    results.push(...await runAll(pages.flatMap(assetChecks)));
+    for (let i = 0; i < checks.length; i++) {
+      const page = results[i];
+      if (!checks[i].assets || !page.text) continue;
+      const find = checks[i].find || [];
+      const assets = await runAll(assetChecks(page, find.length > 0));
+      results.push(...assets);
+      const found = foundChecks(page, find, assets);
+      results.push(...found.filter((c) => c.missing).map((c) => ({ name: c.name, ok: false, detail: "not in the page's scripts" })));
+      results.push(...await runAll(found.filter((c) => !c.missing)));
+    }
 
     const ok = results.every((r) => r.ok);
     render(results, ok);
