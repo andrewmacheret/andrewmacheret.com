@@ -24,12 +24,16 @@ Plain static files in `www/`. Pushing to `master` syncs them to the `andrewmache
 
 ## Redirects
 
-`cloudfront/redirect.js` is the CloudFront Function `andrewmacheret-com-redirect`, which runs on every request. It sends `www.andrewmacheret.com` to `andrewmacheret.com`, and `/projects/cube` to `/projects/cube/`, both with a permanent 301, so Google indexes one URL per page. Without it, S3 adds the slash with a temporary 302 and Google treats the two URLs as duplicates. The deploy workflow doesn't publish it. After editing it, run:
+`cloudfront/redirect.js` is the CloudFront Function `andrewmacheret-com-redirect`, which runs on every request. It sends `www.andrewmacheret.com` to `andrewmacheret.com` with a permanent 301, so Google doesn't index the site twice.
+
+S3 sends `/projects/cube` to `/projects/cube/` with a temporary 302, which Google can treat as a duplicate. So link to projects with the trailing slash, and give each page a canonical tag with the slash.
+
+The deploy workflow doesn't publish the function. After editing it, run:
 
 ```
 etag=$(aws --profile personal cloudfront describe-function --name andrewmacheret-com-redirect --query ETag --output text)
 etag=$(aws --profile personal cloudfront update-function --name andrewmacheret-com-redirect --if-match $etag \
-  --function-config '{"Comment":"www to apex, add trailing slash","Runtime":"cloudfront-js-2.0"}' \
+  --function-config '{"Comment":"www to apex","Runtime":"cloudfront-js-2.0"}' \
   --function-code fileb://cloudfront/redirect.js --query ETag --output text)
 aws --profile personal cloudfront publish-function --name andrewmacheret-com-redirect --if-match $etag
 ```
