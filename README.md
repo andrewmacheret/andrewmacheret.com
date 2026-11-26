@@ -21,3 +21,15 @@ Plain static files in `www/`. Pushing to `master` syncs them to the `andrewmache
 `resume.pdf` isn't in git. Each deploy downloads it from the [Google Doc](https://docs.google.com/document/d/1Kyydz3vJ1sYyvfwZWNPxarSqZHmeRYpszG_mF5fqH5o/edit). To publish edits, click "Run workflow" on the [Deploy workflow](https://github.com/andrewmacheret/andrewmacheret.com/actions/workflows/deploy.yml).
 
 `/resume` (and anything else starting with `resume` that doesn't exist) redirects to `/resume.pdf`. That's a routing rule in the bucket's static website settings, not a file here.
+
+## Redirects
+
+`cloudfront/redirect.js` is the CloudFront Function `andrewmacheret-com-redirect`, which runs on every request. It sends `www.andrewmacheret.com` to `andrewmacheret.com`, and `/projects/cube` to `/projects/cube/`, both with a permanent 301, so Google indexes one URL per page. Without it, S3 adds the slash with a temporary 302 and Google treats the two URLs as duplicates. The deploy workflow doesn't publish it. After editing it, run:
+
+```
+etag=$(aws --profile personal cloudfront describe-function --name andrewmacheret-com-redirect --query ETag --output text)
+etag=$(aws --profile personal cloudfront update-function --name andrewmacheret-com-redirect --if-match $etag \
+  --function-config '{"Comment":"www to apex, add trailing slash","Runtime":"cloudfront-js-2.0"}' \
+  --function-code fileb://cloudfront/redirect.js --query ETag --output text)
+aws --profile personal cloudfront publish-function --name andrewmacheret-com-redirect --if-match $etag
+```

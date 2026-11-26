@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/workflows/canary.yml'
+      # published by hand, see the README
+      - 'cloudfront/**'
   # run by hand to publish resume edits from Google Docs
   workflow_dispatch:
 
