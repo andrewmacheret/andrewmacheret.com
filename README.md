@@ -37,3 +37,7 @@ etag=$(aws --profile personal cloudfront update-function --name andrewmacheret-c
   --function-code fileb://cloudfront/redirect.js --query ETag --output text)
 aws --profile personal cloudfront publish-function --name andrewmacheret-com-redirect --if-match $etag
 ```
+
+## Security headers
+
+The CloudFront distribution uses AWS's managed `SecurityHeadersPolicy`, set in its settings rather than in git. Every file gets HSTS (one year, without `includeSubDomains`, since the home server uses the subdomains), `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN` and `Referrer-Policy: strict-origin-when-cross-origin`. With `nosniff`, browsers won't run a script or stylesheet served with the wrong `Content-Type`, so upload them with `aws s3 sync` or `cp`, which set it from the file extension.
