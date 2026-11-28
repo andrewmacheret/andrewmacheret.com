@@ -17,7 +17,7 @@
 //   image: load it as an image, for servers that don't let other sites fetch from them
 //   maxAgeHours: the file has to have been updated within this many hours
 //   json: a function that gets the parsed JSON. It throws an Error to fail the check,
-//     and any text it returns is added to the detail
+//     and any text it returns is added to the detail. It can be async.
 // The daily canary (github.com/andrewmacheret/canary) opens the page and reads window.healthcheckResult.
 (function () {
   const timeoutMs = 15000;
@@ -84,7 +84,7 @@
       const body = await response.json().catch(() => {
         throw new Error('not valid JSON');
       });
-      const more = check.json(body);
+      const more = await check.json(body);
       if (more) details.push(more);
       return { detail: details.join(', ') };
     }
